@@ -10,8 +10,6 @@
 #include <stdexcept>
 #include <fstream>
 
-#define SPRITE_NUM 79
-
 static GLuint compile_shader(GLenum type, std::string const &source);
 static GLuint link_program(GLuint vertex_shader, GLuint fragment_shader);
 
@@ -195,19 +193,32 @@ int main(int argc, char **argv) {
 		glm::vec2 rad = glm::vec2(13.3f, 9.975f);
 	};
 
+#define SPRITE_NUM 79
+#define TEXTURE_MAP_SIZE_X 481
+#define TEXTURE_MAP_SIZE_Y 199
 	//read the sprite data from file
 	SpriteInfo sprite_list[SPRITE_NUM];
+	glm::vec2 screen_size;
 	{
 		std::ifstream fin ("spriteBin.bin", std::ifstream::binary);
 		for(int i=0;i<SPRITE_NUM;i++) {;
 			fin.read(reinterpret_cast<char*>(&sprite_list[i].name), sizeof(char) * 20);
 			//reference to https://stackoverflow.com/questions/19614581/reading-floating-numbers-from-bin-file-continuosly-and-outputting-in-console-win
 			fin.read(reinterpret_cast<char*>(&(sprite_list[i].min_uv.x)), sizeof(float));
-			fin.read(reinterpret_cast<char*>(&(sprite_list[i].min_uv.y)), sizeof(float));
-			fin.read(reinterpret_cast<char*>(&(sprite_list[i].max_uv.x)), sizeof(float));
 			fin.read(reinterpret_cast<char*>(&(sprite_list[i].max_uv.y)), sizeof(float));
-			sprite_list[i].rad.x = (sprite_list[i].max_uv.x - sprite_list[i].min_uv.x) / 2;
-			sprite_list[i].rad.y = (sprite_list[i].max_uv.y - sprite_list[i].min_uv.y) / 2;
+			fin.read(reinterpret_cast<char*>(&(sprite_list[i].max_uv.x)), sizeof(float));
+			fin.read(reinterpret_cast<char*>(&(sprite_list[i].min_uv.y)), sizeof(float));
+			sprite_list[i].min_uv.y = TEXTURE_MAP_SIZE_Y - sprite_list[i].min_uv.y;
+			sprite_list[i].max_uv.y = TEXTURE_MAP_SIZE_Y - sprite_list[i].max_uv.y;
+			if(i==0) {
+				screen_size = glm::vec2(sprite_list[i].max_uv.x - sprite_list[i].min_uv.x, sprite_list[i].max_uv.y - sprite_list[i].min_uv.y);
+			}
+			sprite_list[i].rad.x *= (sprite_list[i].max_uv.x - sprite_list[i].min_uv.x) / screen_size.x;
+			sprite_list[i].rad.y *= (sprite_list[i].max_uv.y - sprite_list[i].min_uv.y) / screen_size.y;
+			sprite_list[i].min_uv.x /= TEXTURE_MAP_SIZE_X;
+			sprite_list[i].min_uv.y /= TEXTURE_MAP_SIZE_Y;
+			sprite_list[i].max_uv.x /= TEXTURE_MAP_SIZE_X;
+			sprite_list[i].max_uv.y /= TEXTURE_MAP_SIZE_Y;
 			//printf("%s %f %f %f %f\n", sprite_list[i].name.c_str(), sprite_list[i].min_uv.x, sprite_list[i].min_uv.y, sprite_list[i].max_uv.x, sprite_list[i].max_uv.y);
 		}
 		fin.close();
@@ -247,7 +258,72 @@ int main(int argc, char **argv) {
 
 	//------------ game loop ------------
 
+//--- background ---
+#define CENTER 0
+#define LEFT 1
+#define RIGHT 2
+
+#define NONE 0
+//--- material ---
+#define BOARD 1
+#define ROPE 2
+#define PICK_AXE_HEAD 3
+#define STICK 4
+#define ROD 5
+#define KNIFE 6
+//--- tool ---
+#define BRIDGE 7
+#define PICK_AXE 8
+#define LONG_KNIFE 9
+//--- item ---
+#define CRYSTAL 10
+#define COIN 11
+#define APPLE 12
+#define ROCK 13
+#define KEY 14
+//--- object ---
+#define GATE 15
+#define WORK_BENCH 16
+#define PILLAR_RIGHT 17
+#define PILLAR_UP 18
+#define PILLAR_LEFT 19
+#define PILLAR_DOWN 20
+#define PILLAR_CENTER 21
+#define TREE 22
+#define POND 23
+#define PLACE_BRIDGE 24
+#define SCALE 25
+#define MAP 26
+#define HOLE 27
+
+
+	struct player {
+		glm::vec2 position = glm::vec2(0.5f, 0.0f);
+		bool carrying = false;
+		int in_hand = NONE;
+	};
+
+	struct movable {
+		glm::vec2 position;
+		bool show;
+		bool carried = false;
+		bool can_interact;
+		bool used = false;
+	};
+	
+
 	bool should_quit = false;
+	
+	bool escaped = false;
+	int current_map = CENTER;
+	
+	player P1;
+	
+	//movable 
+	
+	
+	
+	
 	while (true) {
 		static SDL_Event evt;
 		while (SDL_PollEvent(&evt) == 1) {
@@ -262,18 +338,26 @@ int main(int argc, char **argv) {
 				should_quit = true;
 				break;
 			} else if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_RIGHT) {
-				
+				P1.position.x += 0.2f;
 			} else if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_UP) {
-				
+				P1.position.y += 0.2f;
 			} else if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_LEFT) {
-				
+				P1.position.x -= 0.2f;
 			} else if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_DOWN) {
-				
+				P1.position.y -= 0.2f;
 			} else if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_z) {
 				
 			}
 		}
 		if (should_quit) break;
+		
+		
+		
+		
+		
+		
+		
+		
 
 		auto current_time = std::chrono::high_resolution_clock::now();
 		static auto previous_time = current_time;
@@ -319,14 +403,33 @@ int main(int argc, char **argv) {
 				verts.emplace_back(at + right *  rad.x + up *  rad.y, glm::vec2(max_uv.x, max_uv.y), tint);
 				verts.emplace_back(verts.back());
 			};
-			static SpriteInfo center = load_sprite("crystal");
-			rect(glm::vec2(0.0f, 0.0f), glm::vec2(camera.radius.x, camera.radius.y), center.min_uv, center.max_uv, glm::u8vec4(0xff, 0xff, 0xff, 0xff));
-			//rect(mouse * camera.radius + camera.at, glm::vec2(5.0f, 2.4f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
+			static SpriteInfo background = load_sprite("center");
+			//rect(glm::vec2(0.0f, 0.0f), glm::vec2(camera.radius.x, camera.radius.y), background.min_uv, background.max_uv, glm::u8vec4(0xff, 0xff, 0xff, 0xff));
 			
 			//Draw a sprite "player" at position (5.0, 2.0):
-			//static SpriteInfo player = load_sprite("crystal"); //TODO: hoist
+			static SpriteInfo player_sp = load_sprite("player1"); //TODO: hoist
 			//printf("%s %f %f %f %f\n", player.name, player.min_uv.x, player.min_uv.y, player.max_uv.x, player.max_uv.y);
-			//draw_sprite(player, glm::vec2(0.0, 0.0), 0.0f);
+			
+			
+			
+			
+			if(current_map == CENTER) {
+				SpriteInfo background = load_sprite("center");
+				
+				
+			} else if (current_map == LEFT) {
+				SpriteInfo background = load_sprite("left");
+				
+				
+				
+			} else if (current_map == RIGHT) {
+				SpriteInfo background = load_sprite("right");
+				
+				
+				
+			}
+			rect(glm::vec2(0.0f, 0.0f), glm::vec2(camera.radius.x, camera.radius.y), background.min_uv, background.max_uv, glm::u8vec4(0xff, 0xff, 0xff, 0xff));
+			draw_sprite(player_sp, P1.position, 0.0f);
 
 			
 
