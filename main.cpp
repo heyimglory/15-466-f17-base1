@@ -259,9 +259,9 @@ int main(int argc, char **argv) {
 	//------------ game loop ------------
 
 //--- background ---
-#define CENTER 0
-#define LEFT 1
-#define RIGHT 2
+#define BACKGROUND_CENTER 0
+#define BACKGROUND_LEFT 1
+#define BACKGROUND_RIGHT 2
 
 #define NONE 0
 //--- material ---
@@ -281,7 +281,7 @@ int main(int argc, char **argv) {
 #define APPLE 12
 #define ROCK 13
 #define KEY 14
-//--- object ---
+//--- landmark ---
 #define GATE 15
 #define WORK_BENCH 16
 #define PILLAR_RIGHT 17
@@ -296,36 +296,234 @@ int main(int argc, char **argv) {
 #define MAP 26
 #define HOLE 27
 
+//--- player direction ---
+#define RIGHT 0
+#define UP 1
+#define LEFT 2
+#define DOWN 3
+
 
 	struct player {
-		glm::vec2 position = glm::vec2(0.5f, 0.0f);
+		glm::vec2 position = glm::vec2(6.0f, 0.0f);
 		bool carrying = false;
 		int in_hand = NONE;
+		int direction = RIGHT;
 	};
 
-	struct movable {
+	class movable {
+	public:
 		glm::vec2 position;
+		glm::vec2 rad;
 		bool show;
 		bool carried = false;
-		bool can_interact;
+		bool can_interact = false;
 		bool used = false;
+		bool touched = false;
+		movable(float x, float y, float r_x, float r_y, bool sh, bool interact) {
+			position = glm::vec2(x, y);
+			rad = glm::vec2(r_x, r_y);
+			show = sh;
+			can_interact = interact;
+		}
 	};
 	
+	class landmark {
+	public:
+		glm::vec2 position;
+		glm::vec2 rad;
+		bool show = true;
+		bool can_interact = true;
+		bool touched = false;
+		landmark(float x, float y, float r_x, float r_y) {
+			position = glm::vec2(x, y);
+			rad = glm::vec2(r_x, r_y);
+		}
+	};
+	
+	class highlight {
+	public:
+		glm::vec2 position_p;
+		bool show_p;
+		highlight(glm::vec2 position, bool touched) {
+			position_p = position;
+			show_p = touched;
+		}
+		void refresh(glm::vec2 position, bool touched) {
+			position_p = position;
+			show_p = touched;
+			return;
+		}
+	};
 
 	bool should_quit = false;
 	
 	bool escaped = false;
-	int current_map = CENTER;
+	int current_map = BACKGROUND_CENTER;
+	bool interact = false;
 	
+	//--- objects ---
 	player P1;
+	//--movables--
+	std::vector< movable > movables;
+	movable board(-8.0f, 4.6f, 0.5f, 0.5f, true, true);
+	movable rope(-5.0f, 0.0f, 0.5f, 0.5f, true, true);
+	movable pick_axe_head(7.0f, 3.2f, 0.5f, 0.5f, true, true);
+	movable stick(9.0f, -3.0f, 0.5f, 0.5f, true, true);
+	movable rod(9.0f, -2.0f, 0.5f, 0.5f, true, true);
+	movable knife(-3.0f, -5.0f, 0.5f, 0.5f, true, true);
+	movable bridge(3.0f, -4.5f, 0.5f, 0.5f, false, false);
+	movable pick_axe(3.0f, -4.5f, 0.5f, 0.5f, false, false);
+	movable long_knife(3.0f, -4.5f, 0.5f, 0.5f, false, false);
+	movable crystal(5.0f, 1.5f, 0.5f, 0.5f, true, false);
+	movable coin(6.0f, -4.0f, 0.5f, 0.5f, false, false);
+	movable apple(4.0f, 8.4f, 0.5f, 0.5f, true, false);
+	movable rock(-4.0f, 5.0f, 0.5f, 0.5f, false, true);
+	movable key(0.0f, 2.0f, 0.5f, 0.5f, false, false);	
+	movables.push_back(board);
+	movables.push_back(rope);
+	movables.push_back(pick_axe_head);
+	movables.push_back(stick);
+	movables.push_back(rod);
+	movables.push_back(knife);
+	movables.push_back(bridge);
+	movables.push_back(pick_axe);
+	movables.push_back(long_knife);
+	movables.push_back(crystal);
+	movables.push_back(coin);
+	movables.push_back(apple);
+	movables.push_back(rock);
+	movables.push_back(key);
 	
-	//movable 
+	//--landmarks--
+	std::vector< landmark > landmarks;
+	landmark gate(0.0, 5.4f, 2.0f, 0.3f);
+	landmark work_bench(8.0f, 6.2f, 2.0f, 1.0f);
+	landmark pillar_right(4.0f, 1.0f, 0.5f, 0.5f);
+	landmark pillar_up(0.0f, 3.0f, 0.5f, 0.5f);
+	landmark pillar_left(-4.0f, 1.0f, 0.5f, 0.5f);
+	landmark pillar_down(0.0f, -3.0f, 0.5f, 0.5f);
+	landmark pillar_center(0.0f, 1.0f, 0.5f, 0.5f);
+	landmark tree(8.0f, 3.6f, 2.0f, 1.8f);
+	landmark pond(6.0f, 1.5f, 2.0f, 1.5f);
+	landmark bridge_place(4.0f, 1.5f, 0.5f, 0.5f);
+	landmark scale(-7.0f, 5.0f, 1.5f, 1.0f);
+	landmark map(6.0f, 5.4f, 3.0f, 0.3f);
+	landmark hole(6.0f, -4.0f, 1.0f, 1.0f);
+	landmarks.push_back(gate);
+	landmarks.push_back(work_bench);
+	landmarks.push_back(pillar_right);
+	landmarks.push_back(pillar_up);
+	landmarks.push_back(pillar_left);
+	landmarks.push_back(pillar_down);
+	landmarks.push_back(pillar_center);
+	landmarks.push_back(tree);
+	landmarks.push_back(pond);
+	landmarks.push_back(bridge_place);
+	landmarks.push_back(scale);
+	landmarks.push_back(map);
+	landmarks.push_back(hole);
 	
+	//--highlights--
+	std::vector< highlight > highlights;
+	highlight h_board(board.position, board.touched);
+	highlight h_rope(rope.position, rope.touched);
+	highlight h_pick_axe_head(pick_axe_head.position, pick_axe_head.touched);
+	highlight h_stick(stick.position, stick.touched);
+	highlight h_rod(rod.position, rod.touched);
+	highlight h_knife(knife.position, knife.touched);
+	highlight h_bridge(bridge.position, bridge.touched);
+	highlight h_pick_axe(pick_axe.position, pick_axe.touched);
+	highlight h_long_knife(long_knife.position, long_knife.touched);
+	highlight h_crystal(crystal.position, crystal.touched);
+	highlight h_coin(coin.position, coin.touched);
+	highlight h_apple(apple.position, apple.touched);
+	highlight h_rock(rock.position, rock.touched);
+	highlight h_key(key.position, key.touched);
+	highlight h_gate(gate.position, gate.touched);
+	highlight h_workBench(work_bench.position, work_bench.touched);
+	highlight h_pillar_right(pillar_right.position, pillar_right.touched);
+	highlight h_pillar_up(pillar_up.position, pillar_up.touched);
+	highlight h_pillar_left(pillar_left.position, pillar_left.touched);
+	highlight h_pillar_down(pillar_down.position, pillar_down.touched);
+	highlight h_pillar_center(pillar_center.position, pillar_center.touched);
+	highlight h_tree(tree.position, tree.touched);
+	highlight h_pond(pond.position, pond.touched);
+	highlight h_bridgePlace(bridge_place.position, bridge_place.touched);
+	highlight h_scale(scale.position, scale.touched);
+	highlight h_map(map.position, map.touched);
+	highlight h_hole(hole.position, hole.touched);
+	highlights.push_back(h_board);
+	highlights.push_back(h_rope);
+	highlights.push_back(h_pick_axe_head);
+	highlights.push_back(h_stick);
+	highlights.push_back(h_rod);
+	highlights.push_back(h_knife);
+	highlights.push_back(h_bridge);
+	highlights.push_back(h_pick_axe);
+	highlights.push_back(h_long_knife);
+	highlights.push_back(h_crystal);
+	highlights.push_back(h_coin);
+	highlights.push_back(h_apple);
+	highlights.push_back(h_rock);
+	highlights.push_back(h_key);
+	highlights.push_back(h_gate);
+	highlights.push_back(h_workBench);
+	highlights.push_back(h_pillar_right);
+	highlights.push_back(h_pillar_up);
+	highlights.push_back(h_pillar_left);
+	highlights.push_back(h_pillar_down);
+	highlights.push_back(h_pillar_center);
+	highlights.push_back(h_tree);
+	highlights.push_back(h_pond);
+	highlights.push_back(h_bridgePlace);
+	highlights.push_back(h_scale);
+	highlights.push_back(h_map);
+	highlights.push_back(h_hole);
 	
-	
+	//--- sprites ---
+	static SpriteInfo background = load_sprite("center");
+	static SpriteInfo player_sp = load_sprite("player1");
+	static SpriteInfo board_sp = load_sprite("board");
+	static SpriteInfo rope_sp = load_sprite("rope");
+	static SpriteInfo pick_axe_head_sp = load_sprite("pick_axe_head");
+	static SpriteInfo stick_sp = load_sprite("stick");
+	static SpriteInfo rod_sp = load_sprite("rod");
+	static SpriteInfo knife_sp = load_sprite("knife");
+	static SpriteInfo bridge_sp = load_sprite("bridge");
+	static SpriteInfo pick_axe_sp = load_sprite("pick_axe");
+	static SpriteInfo long_knife_sp = load_sprite("long_knife");
+	static SpriteInfo crystal_sp = load_sprite("crystal");
+	static SpriteInfo coin_sp = load_sprite("coin");
+	static SpriteInfo apple_sp = load_sprite("apple");
+	static SpriteInfo rock_sp = load_sprite("rock");
+	static SpriteInfo key_sp = load_sprite("key");
+	static SpriteInfo gate_sp = load_sprite("gate");
+	static SpriteInfo hole_sp = load_sprite("hole");
+	static SpriteInfo scale_sp = load_sprite("scaleBalanced");
+	static SpriteInfo message_sp = load_sprite("message");
+	static SpriteInfo h_board_sp = load_sprite("h_board");
+	static SpriteInfo h_rope_sp = load_sprite("h_rope");
+	static SpriteInfo h_pick_axe_head_sp = load_sprite("h_pick_axe_head");
+	static SpriteInfo h_stick_sp = load_sprite("h_stick");
+	static SpriteInfo h_rod_sp = load_sprite("h_rod");
+	static SpriteInfo h_knife_sp = load_sprite("h_knife");
+	static SpriteInfo h_bridge_sp = load_sprite("h_bridge");
+	static SpriteInfo h_pick_axe_sp = load_sprite("h_pick_axe");
+	static SpriteInfo h_long_knife_sp = load_sprite("h_long_knife");
+	static SpriteInfo h_crystal_sp = load_sprite("h_crystal");
+	static SpriteInfo h_coin_sp = load_sprite("h_coin");
+	static SpriteInfo h_apple_sp = load_sprite("h_apple");
+	static SpriteInfo h_rock_sp = load_sprite("h_rock");
+	static SpriteInfo h_key_sp = load_sprite("h_key");
+	static SpriteInfo h_gate_sp = load_sprite("h_gate");
+	static SpriteInfo h_hole_sp = load_sprite("h_hole");
+	static SpriteInfo h_scale_sp = load_sprite("h_scaleBalanced");
+	static SpriteInfo h_bridgePlace_sp = load_sprite("h_bridgePlace");
+	static SpriteInfo h_work_bench_sp = load_sprite("h_workBench");	
 	
 	while (true) {
 		static SDL_Event evt;
+		interact = false;
 		while (SDL_PollEvent(&evt) == 1) {
 			//handle input:
 			if (evt.type == SDL_MOUSEMOTION) {
@@ -338,15 +536,31 @@ int main(int argc, char **argv) {
 				should_quit = true;
 				break;
 			} else if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_RIGHT) {
-				P1.position.x += 0.2f;
+				P1.direction = RIGHT;
+				if(P1.position.x<12.6f && (current_map==BACKGROUND_CENTER || current_map==BACKGROUND_LEFT)) {
+					P1.position.x += 0.2f;
+				} else if (P1.position.x<11.2f && current_map==BACKGROUND_RIGHT) {
+					P1.position.x += 0.2f;
+				}
 			} else if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_UP) {
-				P1.position.y += 0.2f;
+				P1.direction = UP;
+				if(P1.position.y<5.4f) {
+					P1.position.y += 0.2f;
+				}
 			} else if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_LEFT) {
-				P1.position.x -= 0.2f;
+				P1.direction = LEFT;
+				if(P1.position.x>-12.6f && (current_map==BACKGROUND_CENTER || current_map==BACKGROUND_RIGHT)) {
+					P1.position.x -= 0.2f;
+				} else if (P1.position.x>-11.2f && current_map==BACKGROUND_LEFT) {
+					P1.position.x -= 0.2f;
+				}
 			} else if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_DOWN) {
-				P1.position.y -= 0.2f;
+				P1.direction = DOWN;
+				if(P1.position.y>-8.6f) {
+					P1.position.y -= 0.2f;
+				}
 			} else if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_z) {
-				
+				interact = true;
 			}
 		}
 		if (should_quit) break;
@@ -403,30 +617,31 @@ int main(int argc, char **argv) {
 				verts.emplace_back(at + right *  rad.x + up *  rad.y, glm::vec2(max_uv.x, max_uv.y), tint);
 				verts.emplace_back(verts.back());
 			};
-			static SpriteInfo background = load_sprite("center");
-			//rect(glm::vec2(0.0f, 0.0f), glm::vec2(camera.radius.x, camera.radius.y), background.min_uv, background.max_uv, glm::u8vec4(0xff, 0xff, 0xff, 0xff));
-			
-			//Draw a sprite "player" at position (5.0, 2.0):
-			static SpriteInfo player_sp = load_sprite("player1"); //TODO: hoist
-			//printf("%s %f %f %f %f\n", player.name, player.min_uv.x, player.min_uv.y, player.max_uv.x, player.max_uv.y);
 			
 			
 			
 			
-			if(current_map == CENTER) {
-				SpriteInfo background = load_sprite("center");
-				
-				
-			} else if (current_map == LEFT) {
-				SpriteInfo background = load_sprite("left");
-				
-				
-				
-			} else if (current_map == RIGHT) {
-				SpriteInfo background = load_sprite("right");
-				
-				
-				
+			if(current_map == BACKGROUND_CENTER) {
+				background = load_sprite("center");
+				if(P1.position.x>=12.2f && P1.direction==RIGHT) {
+					current_map = BACKGROUND_RIGHT;
+					P1.position.x = -12.2f;
+				} else if(P1.position.x<=-12.2f && P1.direction==LEFT) {
+					current_map = BACKGROUND_LEFT;
+					P1.position.x = 12.2f;
+				}				
+			} else if (current_map == BACKGROUND_LEFT) {
+				background = load_sprite("left");
+				if(P1.position.x>=12.2f && P1.direction==RIGHT) {
+					current_map = BACKGROUND_CENTER;
+					P1.position.x = -12.2f;
+				}	
+			} else if (current_map == BACKGROUND_RIGHT) {
+				background = load_sprite("right");
+				if(P1.position.x<=-12.2f && P1.direction==LEFT) {
+					current_map = BACKGROUND_CENTER;
+					P1.position.x = 12.2f;
+				}	
 			}
 			rect(glm::vec2(0.0f, 0.0f), glm::vec2(camera.radius.x, camera.radius.y), background.min_uv, background.max_uv, glm::u8vec4(0xff, 0xff, 0xff, 0xff));
 			draw_sprite(player_sp, P1.position, 0.0f);
