@@ -373,15 +373,18 @@ int main(int argc, char **argv) {
 	};
 
 	bool should_quit = false;
-	
+
 	bool escaped = false;
 	int current_map = BACKGROUND_CENTER;
 	bool interact = false;
 	
+	int show_message;
+	
+	int on_pillar[5]  = {NONE, NONE, NONE, NONE, NONE};
+	
 	//--- objects ---
 	player P1;
 	//--movables--
-	std::vector< movable > movables;
 	movable board(-8.0f, 4.0f, 2.0f, 2.0f, true, true);
 	movable rope(-5.0f, -2.0f, 2.0f, 2.0f, true, true);
 	movable pick_axe_head(7.0f, -3.2f, 2.0f, 2.0f, true, true);
@@ -392,110 +395,27 @@ int main(int argc, char **argv) {
 	movable pick_axe(4.0f, -5.0f, 2.0f, 2.0f, false, false);
 	movable long_knife(4.0f, -5.0f, 2.0f, 2.0f, false, false);
 	movable crystal(-4.6f, 2.3f, 2.0f, 2.0f, true, false);
-	movable coin(6.0f, -4.0f, 2.0f, 2.0f, false, false);
+	movable coin(6.0f, -3.4f, 2.0f, 2.0f, false, false);
 	movable apple(5.7f, 8.3f, 2.0f, 2.0f, true, false);
-	movable rock(-4.0f, 5.0f, 2.0f, 2.0f, false, true);
-	movable key(0.0f, 2.0f, 2.0f, 2.0f, false, false);	
-	movables.push_back(board);
-	movables.push_back(rope);
-	movables.push_back(pick_axe_head);
-	movables.push_back(stick);
-	movables.push_back(rod);
-	movables.push_back(knife);
-	movables.push_back(bridge);
-	movables.push_back(pick_axe);
-	movables.push_back(long_knife);
-	movables.push_back(crystal);
-	movables.push_back(coin);
-	movables.push_back(apple);
-	movables.push_back(rock);
-	movables.push_back(key);
+	movable rock(-4.8f, 4.6f, 2.0f, 2.0f, false, true);
+	movable key(0.07f, 0.0f, 2.0f, 2.0f, false, false);	
 	
 	//--landmarks--
-	std::vector< landmark > landmarks;
 	landmark gate(0.07f, 7.33f, 2.0f, 2.0f);
 	landmark work_bench(9.25f, -8.8f, 4.0f, 2.5f);
-	landmark pillar_right(4.0f, 1.0f, 2.0f, 2.0f);
-	landmark pillar_up(0.0f, 3.0f, 2.0f, 2.0f);
-	landmark pillar_left(-4.0f, 1.0f, 2.0f, 2.0f);
-	landmark pillar_down(0.0f, -3.0f, 2.0f, 2.0f);
-	landmark pillar_center(0.0f, 1.0f, 2.0f, 2.0f);
-	landmark tree(8.0f, 3.6f, 2.0f, 1.8f);
-	landmark pond(6.0f, 1.5f, 2.0f, 1.5f);
-	landmark bridge_place(4.0f, 1.5f, 2.0f, 2.0f);
+	landmark pillar_right(3.4f, -1.17f, 2.0f, 2.0f);
+	landmark pillar_up(0.07f, 1.67f, 2.0f, 2.0f);
+	landmark pillar_left(-3.2f, -1.1f, 2.0f, 2.0f);
+	landmark pillar_down(0.07f, -4.0f, 2.0f, 2.0f);
+	landmark pillar_center(0.07f, -1.17f, 2.0f, 2.0f);
+	landmark tree(6.77f, 5.77f, 2.5f, 4.0f);
+	landmark pond(-6.3f, 1.4f, 4.0f, 3.0f);
+	landmark bridge_place(-2.7f, 1.5f, 2.0f, 1.0f);
 	landmark scale(-7.0f, 5.0f, 1.5f, 2.0f);
-	landmark map(6.0f, 5.4f, 3.0f, 0.3f);
-	landmark hole(6.0f, -4.0f, 2.0f, 2.0f);
-	landmarks.push_back(gate);
-	landmarks.push_back(work_bench);
-	landmarks.push_back(pillar_right);
-	landmarks.push_back(pillar_up);
-	landmarks.push_back(pillar_left);
-	landmarks.push_back(pillar_down);
-	landmarks.push_back(pillar_center);
-	landmarks.push_back(tree);
-	landmarks.push_back(pond);
-	landmarks.push_back(bridge_place);
-	landmarks.push_back(scale);
-	landmarks.push_back(map);
-	landmarks.push_back(hole);
-	
-	//--highlights--
-	/*std::vector< highlight > highlights;
-	highlight h_board(board.position, board.touched);
-	highlight h_rope(rope.position, rope.touched);
-	highlight h_pick_axe_head(pick_axe_head.position, pick_axe_head.touched);
-	highlight h_stick(stick.position, stick.touched);
-	highlight h_rod(rod.position, rod.touched);
-	highlight h_knife(knife.position, knife.touched);
-	highlight h_bridge(bridge.position, bridge.touched);
-	highlight h_pick_axe(pick_axe.position, pick_axe.touched);
-	highlight h_long_knife(long_knife.position, long_knife.touched);
-	highlight h_crystal(crystal.position, crystal.touched);
-	highlight h_coin(coin.position, coin.touched);
-	highlight h_apple(apple.position, apple.touched);
-	highlight h_rock(rock.position, rock.touched);
-	highlight h_key(key.position, key.touched);
-	highlight h_gate(gate.position, gate.touched);
-	highlight h_workBench(work_bench.position, work_bench.touched);
-	highlight h_pillar_right(pillar_right.position, pillar_right.touched);
-	highlight h_pillar_up(pillar_up.position, pillar_up.touched);
-	highlight h_pillar_left(pillar_left.position, pillar_left.touched);
-	highlight h_pillar_down(pillar_down.position, pillar_down.touched);
-	highlight h_pillar_center(pillar_center.position, pillar_center.touched);
-	highlight h_tree(tree.position, tree.touched);
-	highlight h_pond(pond.position, pond.touched);
-	highlight h_bridgePlace(bridge_place.position, bridge_place.touched);
-	highlight h_scale(scale.position, scale.touched);
-	highlight h_map(map.position, map.touched);
-	highlight h_hole(hole.position, hole.touched);
-	highlights.push_back(h_board);
-	highlights.push_back(h_rope);
-	highlights.push_back(h_pick_axe_head);
-	highlights.push_back(h_stick);
-	highlights.push_back(h_rod);
-	highlights.push_back(h_knife);
-	highlights.push_back(h_bridge);
-	highlights.push_back(h_pick_axe);
-	highlights.push_back(h_long_knife);
-	highlights.push_back(h_crystal);
-	highlights.push_back(h_coin);
-	highlights.push_back(h_apple);
-	highlights.push_back(h_rock);
-	highlights.push_back(h_key);
-	highlights.push_back(h_gate);
-	highlights.push_back(h_workBench);
-	highlights.push_back(h_pillar_right);
-	highlights.push_back(h_pillar_up);
-	highlights.push_back(h_pillar_left);
-	highlights.push_back(h_pillar_down);
-	highlights.push_back(h_pillar_center);
-	highlights.push_back(h_tree);
-	highlights.push_back(h_pond);
-	highlights.push_back(h_bridgePlace);
-	highlights.push_back(h_scale);
-	highlights.push_back(h_map);
-	highlights.push_back(h_hole);*/
+	landmark map(2.7f, 7.5f, 4.0f, 2.8f);
+	landmark hole(6.0f, -3.8f, 2.0f, 2.0f);
+	hole.show = false;
+	hole.can_interact = false;
 	
 	//--- sprites ---
 	static SpriteInfo background = load_sprite("center");
@@ -518,6 +438,7 @@ int main(int argc, char **argv) {
 	static SpriteInfo hole_sp = load_sprite("hole");
 	static SpriteInfo scale_sp = load_sprite("scaleBalanced");
 	static SpriteInfo message_sp = load_sprite("message");
+	static SpriteInfo escaped_sp = load_sprite("escaped");
 	static SpriteInfo h_board_sp = load_sprite("h_board");
 	static SpriteInfo h_rope_sp = load_sprite("h_rope");
 	static SpriteInfo h_pick_axe_head_sp = load_sprite("h_pickAxeHead");
@@ -536,7 +457,11 @@ int main(int argc, char **argv) {
 	static SpriteInfo h_hole_sp = load_sprite("h_hole");
 	static SpriteInfo h_scale_sp = load_sprite("h_scaleBalanced");
 	static SpriteInfo h_bridgePlace_sp = load_sprite("h_bridgePlace");
-	static SpriteInfo h_work_bench_sp = load_sprite("h_workBench");	
+	static SpriteInfo h_work_bench_sp = load_sprite("h_workBench");
+	static SpriteInfo h_pillar_sp = load_sprite("h_pillar");
+	static SpriteInfo h_tree_sp = load_sprite("h_treeWithApple");
+	static SpriteInfo h_pond_sp = load_sprite("h_pond");
+	static SpriteInfo h_map_sp = load_sprite("h_map");
 	
 	//==================================================================================================================
 	
@@ -554,48 +479,49 @@ int main(int argc, char **argv) {
 				should_quit = true;
 				break;
 			} else {
-				if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_RIGHT) {
+				if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_RIGHT && !escaped) {
 					P1.direction = RIGHT;
 					P1.walking = true;
 					P1.walk_leg = !P1.walk_leg;
 					if(P1.position.x<12.6f && (current_map==BACKGROUND_CENTER || current_map==BACKGROUND_LEFT)) {
-						P1.position.x += 0.3f;
+						P1.position.x += 0.5f;
 					} else if (P1.position.x<11.2f && current_map==BACKGROUND_RIGHT) {
-						P1.position.x += 0.3f;
+						P1.position.x += 0.5f;
 					}
 					interact = false;
 				}
-				if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_UP) {
+				if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_UP && !escaped) {
 					P1.direction = UP;
 					P1.walking = true;
 					P1.walk_leg = !P1.walk_leg;
 					if(P1.position.y<5.4f) {
-						P1.position.y += 0.3f;
+						P1.position.y += 0.5f;
 					}
 					interact = false;
 				}
-				if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_LEFT) {
+				if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_LEFT && !escaped) {
 					P1.direction = LEFT;
 					P1.walking = true;
 					P1.walk_leg = !P1.walk_leg;
 					if(P1.position.x>-12.6f && (current_map==BACKGROUND_CENTER || current_map==BACKGROUND_RIGHT)) {
-						P1.position.x -= 0.3f;
+						P1.position.x -= 0.5f;
 					} else if (P1.position.x>-11.2f && current_map==BACKGROUND_LEFT) {
-						P1.position.x -= 0.3f;
+						P1.position.x -= 0.5f;
 					}
 					interact = false;
 				}
-				if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_DOWN) {
+				if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_DOWN && !escaped) {
 					P1.direction = DOWN;
 					P1.walking = true;
 					P1.walk_leg = !P1.walk_leg;
 					if(P1.position.y>-8.6f) {
-						P1.position.y -= 0.3f;
+						P1.position.y -= 0.5f;
 					}
 					interact = false;
 				}
-				if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_z) {
+				if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_z && !escaped) {
 					interact = true;
+					show_message = NONE;
 				}
 			}
 		}
@@ -645,8 +571,7 @@ int main(int argc, char **argv) {
 				verts.emplace_back(at + right *  rad.x + up *  rad.y, glm::vec2(max_uv.x, max_uv.y), tint);
 				verts.emplace_back(verts.back());
 			};
-			
-			
+				
 			
 			// background behavior in each map
 			if(current_map == BACKGROUND_CENTER) {
@@ -678,10 +603,13 @@ int main(int argc, char **argv) {
 				if(work_bench.touches(P1)) {
 					draw_sprite(h_work_bench_sp, work_bench.position, 0.0f);
 					if(interact) {
+						interact = false;
 						if(P1.carrying) {
 							if(P1.in_hand==BOARD) {
 								board.carried = false;
 								board.used = true;
+								P1.carrying = false;
+								P1.in_hand = NONE;
 								if(rope.used) {
 									bridge.show = true;
 									bridge.can_interact = true;
@@ -690,6 +618,8 @@ int main(int argc, char **argv) {
 							} else if(P1.in_hand==ROPE) {
 								rope.carried = false;
 								rope.used = true;
+								P1.carrying = false;
+								P1.in_hand = NONE;
 								if(board.used) {
 									bridge.show = true;
 									bridge.can_interact = true;
@@ -698,6 +628,8 @@ int main(int argc, char **argv) {
 							} else if(P1.in_hand==PICK_AXE_HEAD) {
 								pick_axe_head.carried = false;
 								pick_axe_head.used = true;
+								P1.carrying = false;
+								P1.in_hand = NONE;
 								if(stick.used) {
 									pick_axe.show = true;
 									pick_axe.can_interact = true;
@@ -706,6 +638,8 @@ int main(int argc, char **argv) {
 							} else if(P1.in_hand==STICK) {
 								stick.carried = false;
 								stick.used = true;
+								P1.carrying = false;
+								P1.in_hand = NONE;
 								if(pick_axe_head.used) {
 									pick_axe.show = true;
 									pick_axe.can_interact = true;
@@ -714,24 +648,26 @@ int main(int argc, char **argv) {
 							} else if(P1.in_hand==ROD) {
 								rod.carried = false;
 								rod.used = true;
+								P1.carrying = false;
+								P1.in_hand = NONE;
 								if(knife.used) {
 									long_knife.show = true;
 									long_knife.can_interact = true;
-									apple.can_interact = true;
+									tree.can_interact = true;
 								}
 							} else if(P1.in_hand==KNIFE) {
 								knife.carried = false;
 								knife.used = true;
+								P1.carrying = false;
+								P1.in_hand = NONE;
 								if(rod.used) {
 									long_knife.show = true;
 									long_knife.can_interact = true;
-									apple.can_interact = true;
+									tree.can_interact = true;
 								}
 							}
-							P1.carrying = false;
-							P1.in_hand = NONE;
 						} else {
-							// show message
+							show_message = WORK_BENCH;
 						}
 					}
 				}
@@ -739,13 +675,482 @@ int main(int argc, char **argv) {
 					draw_sprite(gate_sp, gate.position, 0.0f);
 					if(gate.can_interact && gate.touches(P1)) {
 						draw_sprite(h_gate_sp, gate.position, 0.0f);
-						// show message
+						if(interact) {
+							interact = false;
+							if(P1.in_hand==KEY) {
+								gate.show = false;
+								gate.can_interact = false;
+								key.used = true;
+								escaped = true;
+							} else {
+								show_message = GATE;
+							}
+						}
 					}
 				}
+				if(pillar_right.can_interact && pillar_right.touches(P1)) {
+					draw_sprite(h_pillar_sp, pillar_right.position, 0.0f);
+					if(interact) {
+						interact = false;
+						if(on_pillar[0]==NONE) {
+							if(P1.in_hand==APPLE || P1.in_hand==CRYSTAL || P1.in_hand==ROCK || P1.in_hand==COIN) {
+								switch(P1.in_hand) {
+									case APPLE: {
+										apple.show = true;
+										apple.carried = false;
+										apple.position = pillar_right.position + glm::vec2(0.0f, 1.2f);
+										on_pillar[0] = APPLE;
+										break;
+									}
+									case CRYSTAL: {
+										crystal.show = true;
+										crystal.carried = false;
+										crystal.position = pillar_right.position + glm::vec2(0.0f, 1.2f);
+										on_pillar[0] = CRYSTAL;
+										break;
+									}
+									case ROCK: {
+										rock.show = true;
+										rock.carried = false;
+										rock.position = pillar_right.position + glm::vec2(0.0f, 1.2f);
+										on_pillar[0] = ROCK;
+										break;
+									}
+									case COIN: {
+										coin.show = true;
+										coin.carried = false;
+										coin.position = pillar_right.position + glm::vec2(0.0f, 1.2f);
+										on_pillar[0] = COIN;
+										break;
+									}
+								}
+								P1.carrying = false;
+								P1.in_hand = NONE;
+							}
+						} else {
+							switch(on_pillar[0]) {
+									case APPLE: {
+										apple.show = false;
+										apple.carried = true;
+										on_pillar[0] = NONE;
+										P1.in_hand = APPLE;
+										break;
+									}
+									case CRYSTAL: {
+										crystal.show = false;
+										crystal.carried = true;
+										on_pillar[0] = NONE;
+										P1.in_hand = CRYSTAL;
+										break;
+									}
+									case ROCK: {
+										rock.show = false;
+										rock.carried = true;
+										on_pillar[0] = NONE;
+										P1.in_hand = ROCK;
+										break;
+									}
+									case COIN: {
+										coin.show = false;
+										coin.carried = true;
+										on_pillar[0] = NONE;
+										P1.in_hand = COIN;
+										break;
+									}
+								}
+								P1.carrying = true;
+						}
+					}
+				}
+				if(pillar_up.can_interact && pillar_up.touches(P1)) {
+					draw_sprite(h_pillar_sp, pillar_up.position, 0.0f);
+					if(interact) {
+						interact = false;
+						if(on_pillar[1]==NONE) {
+							if(P1.in_hand==APPLE || P1.in_hand==CRYSTAL || P1.in_hand==ROCK || P1.in_hand==COIN) {
+								switch(P1.in_hand) {
+									case APPLE: {
+										apple.show = true;
+										apple.carried = false;
+										apple.position = pillar_up.position + glm::vec2(0.0f, 1.2f);
+										on_pillar[1] = APPLE;
+										break;
+									}
+									case CRYSTAL: {
+										crystal.show = true;
+										crystal.carried = false;
+										crystal.position = pillar_up.position + glm::vec2(0.0f, 1.2f);
+										on_pillar[1] = CRYSTAL;
+										break;
+									}
+									case ROCK: {
+										rock.show = true;
+										rock.carried = false;
+										rock.position = pillar_up.position + glm::vec2(0.0f, 1.2f);
+										on_pillar[1] = ROCK;
+										break;
+									}
+									case COIN: {
+										coin.show = true;
+										coin.carried = false;
+										coin.position = pillar_up.position + glm::vec2(0.0f, 1.2f);
+										on_pillar[1] = COIN;
+										break;
+									}
+								}
+								P1.carrying = false;
+								P1.in_hand = NONE;
+							}
+						} else {
+							switch(on_pillar[1]) {
+									case APPLE: {
+										apple.show = false;
+										apple.carried = true;
+										on_pillar[1] = NONE;
+										P1.in_hand = APPLE;
+										break;
+									}
+									case CRYSTAL: {
+										crystal.show = false;
+										crystal.carried = true;
+										on_pillar[1] = NONE;
+										P1.in_hand = CRYSTAL;
+										break;
+									}
+									case ROCK: {
+										rock.show = false;
+										rock.carried = true;
+										on_pillar[1] = NONE;
+										P1.in_hand = ROCK;
+										break;
+									}
+									case COIN: {
+										coin.show = false;
+										coin.carried = true;
+										on_pillar[1] = NONE;
+										P1.in_hand = COIN;
+										break;
+									}
+								}
+								P1.carrying = true;
+						}
+					}
+				}
+				if(pillar_left.can_interact && pillar_left.touches(P1)) {
+					draw_sprite(h_pillar_sp, pillar_left.position, 0.0f);
+					if(interact) {
+						interact = false;
+						if(on_pillar[2]==NONE) {
+							if(P1.in_hand==APPLE || P1.in_hand==CRYSTAL || P1.in_hand==ROCK || P1.in_hand==COIN) {
+								switch(P1.in_hand) {
+									case APPLE: {
+										apple.show = true;
+										apple.carried = false;
+										apple.position = pillar_left.position + glm::vec2(0.0f, 1.2f);
+										on_pillar[2] = APPLE;
+										break;
+									}
+									case CRYSTAL: {
+										crystal.show = true;
+										crystal.carried = false;
+										crystal.position = pillar_left.position + glm::vec2(0.0f, 1.2f);
+										on_pillar[2] = CRYSTAL;
+										break;
+									}
+									case ROCK: {
+										rock.show = true;
+										rock.carried = false;
+										rock.position = pillar_left.position + glm::vec2(0.0f, 1.2f);
+										on_pillar[2] = ROCK;
+										break;
+									}
+									case COIN: {
+										coin.show = true;
+										coin.carried = false;
+										coin.position = pillar_left.position + glm::vec2(0.0f, 1.2f);
+										on_pillar[2] = COIN;
+										break;
+									}
+								}
+								P1.carrying = false;
+								P1.in_hand = NONE;
+							}
+						} else {
+							switch(on_pillar[2]) {
+									case APPLE: {
+										apple.show = false;
+										apple.carried = true;
+										on_pillar[2] = NONE;
+										P1.in_hand = APPLE;
+										break;
+									}
+									case CRYSTAL: {
+										crystal.show = false;
+										crystal.carried = true;
+										on_pillar[2] = NONE;
+										P1.in_hand = CRYSTAL;
+										break;
+									}
+									case ROCK: {
+										rock.show = false;
+										rock.carried = true;
+										on_pillar[2] = NONE;
+										P1.in_hand = ROCK;
+										break;
+									}
+									case COIN: {
+										coin.show = false;
+										coin.carried = true;
+										on_pillar[2] = NONE;
+										P1.in_hand = COIN;
+										break;
+									}
+								}
+								P1.carrying = true;
+						}
+					}
+				}
+				if(pillar_down.can_interact && pillar_down.touches(P1)) {
+					draw_sprite(h_pillar_sp, pillar_down.position, 0.0f);
+					if(interact) {
+						interact = false;
+						if(on_pillar[3]==NONE) {
+							if(P1.in_hand==APPLE || P1.in_hand==CRYSTAL || P1.in_hand==ROCK || P1.in_hand==COIN) {
+								switch(P1.in_hand) {
+									case APPLE: {
+										apple.show = true;
+										apple.carried = false;
+										apple.position = pillar_down.position + glm::vec2(0.0f, 1.2f);
+										on_pillar[3] = APPLE;
+										break;
+									}
+									case CRYSTAL: {
+										crystal.show = true;
+										crystal.carried = false;
+										crystal.position = pillar_down.position + glm::vec2(0.0f, 1.2f);
+										on_pillar[3] = CRYSTAL;
+										break;
+									}
+									case ROCK: {
+										rock.show = true;
+										rock.carried = false;
+										rock.position = pillar_down.position + glm::vec2(0.0f, 1.2f);
+										on_pillar[3] = ROCK;
+										break;
+									}
+									case COIN: {
+										coin.show = true;
+										coin.carried = false;
+										coin.position = pillar_down.position + glm::vec2(0.0f, 1.2f);
+										on_pillar[3] = COIN;
+										break;
+									}
+								}
+								P1.carrying = false;
+								P1.in_hand = NONE;
+							}
+						} else {
+							switch(on_pillar[3]) {
+									case APPLE: {
+										apple.show = false;
+										apple.carried = true;
+										on_pillar[3] = NONE;
+										P1.in_hand = APPLE;
+										break;
+									}
+									case CRYSTAL: {
+										crystal.show = false;
+										crystal.carried = true;
+										on_pillar[3] = NONE;
+										P1.in_hand = CRYSTAL;
+										break;
+									}
+									case ROCK: {
+										rock.show = false;
+										rock.carried = true;
+										on_pillar[3] = NONE;
+										P1.in_hand = ROCK;
+										break;
+									}
+									case COIN: {
+										coin.show = false;
+										coin.carried = true;
+										on_pillar[3] = NONE;
+										P1.in_hand = COIN;
+										break;
+									}
+								}
+								P1.carrying = true;
+						}
+					}
+				}
+				if(pillar_center.can_interact && pillar_center.touches(P1)) {
+					draw_sprite(h_pillar_sp, pillar_center.position, 0.0f);
+					if(interact) {
+						interact = false;
+						if(on_pillar[4]==NONE) {
+							if(P1.in_hand==APPLE || P1.in_hand==CRYSTAL || P1.in_hand==ROCK || P1.in_hand==COIN) {
+								switch(P1.in_hand) {
+									case APPLE: {
+										apple.show = true;
+										apple.carried = false;
+										apple.position = pillar_center.position + glm::vec2(0.0f, 1.2f);
+										on_pillar[4] = APPLE;
+										break;
+									}
+									case CRYSTAL: {
+										crystal.show = true;
+										crystal.carried = false;
+										crystal.position = pillar_center.position + glm::vec2(0.0f, 1.2f);
+										on_pillar[4] = CRYSTAL;
+										break;
+									}
+									case ROCK: {
+										rock.show = true;
+										rock.carried = false;
+										rock.position = pillar_center.position + glm::vec2(0.0f, 1.2f);
+										on_pillar[4] = ROCK;
+										break;
+									}
+									case COIN: {
+										coin.show = true;
+										coin.carried = false;
+										coin.position = pillar_center.position + glm::vec2(0.0f, 1.2f);
+										on_pillar[4] = COIN;
+										break;
+									}
+								}
+								P1.carrying = false;
+								P1.in_hand = NONE;
+							}
+						} else {
+							switch(on_pillar[4]) {
+									case APPLE: {
+										apple.show = false;
+										apple.carried = true;
+										on_pillar[4] = NONE;
+										P1.in_hand = APPLE;
+										break;
+									}
+									case CRYSTAL: {
+										crystal.show = false;
+										crystal.carried = true;
+										on_pillar[4] = NONE;
+										P1.in_hand = CRYSTAL;
+										break;
+									}
+									case ROCK: {
+										rock.show = false;
+										rock.carried = true;
+										on_pillar[4] = NONE;
+										P1.in_hand = ROCK;
+										break;
+									}
+									case COIN: {
+										coin.show = false;
+										coin.carried = true;
+										on_pillar[4] = NONE;
+										P1.in_hand = COIN;
+										break;
+									}
+								}
+								P1.carrying = true;
+						}
+					}
+				}
+				if(pillar_center.can_interact && on_pillar[0]==COIN && on_pillar[1]==APPLE && on_pillar[2]==CRYSTAL && on_pillar[3]==ROCK &&on_pillar[4]==NONE) {
+					key.show = true;
+					key.can_interact = true;
+					pillar_right.can_interact = false;
+					pillar_up.can_interact = false;
+					pillar_left.can_interact = false;
+					pillar_down.can_interact = false;
+					pillar_center.can_interact = false;
+				}
 			} else if (current_map == BACKGROUND_LEFT) {
-					
+				if(pond.can_interact && pond.touches(P1) && !crystal.touches(P1) && !bridge_place.touches(P1)) {
+					draw_sprite(h_pond_sp, pond.position, 0.0f);
+					if(interact) {
+						interact = false;
+						show_message = POND;
+					}
+				}
+				if(bridge_place.can_interact && bridge_place.touches(P1)) {
+					draw_sprite(h_bridgePlace_sp, bridge_place.position, 0.0f);
+					if(P1.in_hand==BRIDGE && interact) {
+						interact = false;
+						P1.carrying = false;
+						P1.in_hand = NONE;
+						bridge_place.can = false;
+						bridge.used = true;
+						bridge.position = bridge_place.position;
+						bridge.show = true;
+						bridge.carried = false;
+						bridge.can_interact = false;
+						crystal.can_interact = true;
+					}
+				}
+				if(bridge.show && bridge.used) {
+					draw_sprite(bridge_sp, bridge.position, 0.0f);
+				}
+				if(tree.can_interact && tree.touches(P1)) {
+					draw_sprite(h_tree_sp, tree.position, 0.0f);
+					if(P1.in_hand==LONG_KNIFE && interact) {
+						interact = false;
+						P1.in_hand = NONE;
+						P1.carrying = false;
+						apple.can_interact = true;
+						apple.position = glm::vec2(5.7f, 3.0f);
+						long_knife.used = true;
+						long_knife.show = false;
+						long_knife.carried = false;
+						long_knife.can_interact = false;
+						h_tree_sp = load_sprite("h_tree");
+					} else if(interact) {
+						interact = false;
+						show_message = TREE;
+					}
+				}
 			} else if (current_map == BACKGROUND_RIGHT) {
-					
+				if(hole.show) {
+					draw_sprite(hole_sp, hole.position, 0.0f);
+				}
+				if(hole.can_interact && hole.touches(P1)) {
+					draw_sprite(h_hole_sp, hole.position, 0.0f);
+					if(P1.in_hand==PICK_AXE && interact) {
+						interact = false;
+						P1.carrying = false;
+						P1.in_hand = NONE;
+						pick_axe.used = true;
+						pick_axe.show = true;
+						pick_axe.carried = false;
+						hole.show = true;
+						hole.can_interact = false;
+						coin.show = true;
+						coin.can_interact = true;
+						pick_axe.show = false;
+						pick_axe.carried = false;
+						pick_axe.used = true;
+						pick_axe.can_interact = false;
+					}
+				}
+				if(map.can_interact && map.touches(P1)) {
+					draw_sprite(h_map_sp, map.position, 0.0f);
+					if(interact) {
+						interact = false;
+						show_message = MAP;
+					}
+				}
+				if(scale.show) {
+					draw_sprite(scale_sp, scale.position, 0.0f);
+					if(scale.can_interact && scale.touches(P1)) {
+						draw_sprite(h_scale_sp, scale.position, 0.0f);
+						if(interact) {
+							interact = false;
+							show_message = SCALE;
+						}
+					}
+				}
 			}
 			
 			//movable behavior in each map
@@ -755,6 +1160,7 @@ int main(int argc, char **argv) {
 					if(board.can_interact && board.touches(P1)) {
 						draw_sprite(h_board_sp, board.position, 0.0f);
 						if(interact && !P1.carrying) {
+							interact = false;
 							P1.carrying = true;
 							P1.in_hand = BOARD;
 							board.show = false;
@@ -768,6 +1174,7 @@ int main(int argc, char **argv) {
 					if(pick_axe_head.can_interact && pick_axe_head.touches(P1)) {
 						draw_sprite(h_pick_axe_head_sp, pick_axe_head.position, 0.0f);
 						if(interact && !P1.carrying) {
+							interact = false;
 							P1.carrying = true;
 							P1.in_hand = PICK_AXE_HEAD;
 							pick_axe_head.show = false;
@@ -776,11 +1183,12 @@ int main(int argc, char **argv) {
 						}
 					}
 				}
-				if(bridge.show) {
+				if(bridge.show && !bridge.used) {
 					draw_sprite(bridge_sp, bridge.position, 0.0f);
 					if(bridge.can_interact && bridge.touches(P1)) {
 						draw_sprite(h_bridge_sp, bridge.position, 0.0f);
 						if(interact && !P1.carrying) {
+							interact = false;
 							P1.carrying = true;
 							P1.in_hand = BRIDGE;
 							bridge.show = false;
@@ -794,6 +1202,7 @@ int main(int argc, char **argv) {
 					if(pick_axe.can_interact && pick_axe.touches(P1)) {
 						draw_sprite(h_pick_axe_sp, pick_axe.position, 0.0f);
 						if(interact && !P1.carrying) {
+							interact = false;
 							P1.carrying = true;
 							P1.in_hand = PICK_AXE;
 							pick_axe.show = false;
@@ -807,11 +1216,82 @@ int main(int argc, char **argv) {
 					if(long_knife.can_interact && long_knife.touches(P1)) {
 						draw_sprite(h_long_knife_sp, long_knife.position, 0.0f);
 						if(interact && !P1.carrying) {
+							interact = false;
 							P1.carrying = true;
 							P1.in_hand = LONG_KNIFE;
 							long_knife.show = false;
 							long_knife.can_interact = false;
 							long_knife.carried = true;
+						}
+					}
+				}
+				if(key.show) {
+					draw_sprite(key_sp, key.position, 0.0f);
+					if(key.can_interact && key.touches(P1)) {
+						draw_sprite(h_key_sp, key.position, 0.0f);
+						if(interact && !P1.carrying) {
+							interact = false;
+							P1.carrying = true;
+							P1.in_hand = KEY;
+							key.show = false;
+							key.can_interact = false;
+							key.carried = true;
+						}
+					}
+				}
+				if(crystal.show && crystal.used) {
+					draw_sprite(crystal_sp, crystal.position, 0.0f);
+					if(crystal.can_interact && crystal.touches(P1)) {
+						draw_sprite(h_crystal_sp, crystal.position, 0.0f);
+						if(interact && !P1.carrying) {
+							interact = false;
+							P1.carrying = true;
+							P1.in_hand = CRYSTAL;
+							crystal.show = false;
+							crystal.can_interact = false;
+							crystal.carried = true;
+						}
+					}
+				}
+				if(apple.show && apple.used) {
+					draw_sprite(apple_sp, apple.position, 0.0f);
+					if(apple.can_interact && apple.touches(P1)) {
+						draw_sprite(h_apple_sp, apple.position, 0.0f);
+						if(interact && !P1.carrying) {
+							interact = false;
+							P1.carrying = true;
+							P1.in_hand = APPLE;
+							apple.show = false;
+							apple.can_interact = false;
+							apple.carried = true;
+						}
+					}
+				}
+				if(coin.show && coin.used) {
+					draw_sprite(coin_sp, coin.position, 0.0f);
+					if(coin.can_interact && coin.touches(P1)) {
+						draw_sprite(h_coin_sp, coin.position, 0.0f);
+						if(interact && !P1.carrying) {
+							interact = false;
+							P1.carrying = true;
+							P1.in_hand = COIN;
+							coin.show = false;
+							coin.can_interact = false;
+							coin.carried = true;
+						}
+					}
+				}
+				if(rock.show && rock.used) {
+					draw_sprite(rock_sp, rock.position, 0.0f);
+					if(rock.can_interact && rock.touches(P1)) {
+						draw_sprite(h_rock_sp, rock.position, 0.0f);
+						if(interact && !P1.carrying) {
+							interact = false;
+							P1.carrying = true;
+							P1.in_hand = ROCK;
+							rock.show = false;
+							rock.can_interact = false;
+							rock.carried = true;
 						}
 					}
 				}
@@ -821,6 +1301,7 @@ int main(int argc, char **argv) {
 					if(stick.can_interact && stick.touches(P1)) {
 						draw_sprite(h_stick_sp, stick.position, 0.0f);
 						if(interact && !P1.carrying) {
+							interact = false;
 							P1.carrying = true;
 							P1.in_hand = STICK;
 							stick.show = false;
@@ -834,6 +1315,7 @@ int main(int argc, char **argv) {
 					if(rope.can_interact && rope.touches(P1)) {
 						draw_sprite(h_rope_sp, rope.position, 0.0f);
 						if(interact && !P1.carrying) {
+							interact = false;
 							P1.carrying = true;
 							P1.in_hand = ROPE;
 							rope.show = false;
@@ -842,29 +1324,33 @@ int main(int argc, char **argv) {
 						}
 					}
 				}
-				if(crystal.show) {
+				if(crystal.show && !crystal.used) {
 					draw_sprite(crystal_sp, crystal.position, 0.0f);
 					if(crystal.can_interact && crystal.touches(P1)) {
 						draw_sprite(h_crystal_sp, crystal.position, 0.0f);
 						if(interact && !P1.carrying) {
+							interact = false;
 							P1.carrying = true;
 							P1.in_hand = CRYSTAL;
 							crystal.show = false;
 							crystal.can_interact = false;
 							crystal.carried = true;
+							crystal.used = true;
 						}
 					}
 				}
-				if(apple.show) {
+				if(apple.show && !apple.used) {
 					draw_sprite(apple_sp, apple.position, 0.0f);
 					if(apple.can_interact && apple.touches(P1)) {
 						draw_sprite(h_apple_sp, apple.position, 0.0f);
 						if(interact && !P1.carrying) {
+							interact = false;
 							P1.carrying = true;
 							P1.in_hand = APPLE;
 							apple.show = false;
 							apple.can_interact = false;
 							apple.carried = true;
+							apple.used = true;
 						}
 					}
 				}
@@ -875,6 +1361,7 @@ int main(int argc, char **argv) {
 					if(rod.can_interact && rod.touches(P1)) {
 						draw_sprite(h_rod_sp, rod.position, 0.0f);
 						if(interact && !P1.carrying) {
+							interact = false;
 							P1.carrying = true;
 							P1.in_hand = ROD;
 							rod.show = false;
@@ -888,6 +1375,7 @@ int main(int argc, char **argv) {
 					if(knife.can_interact && knife.touches(P1)) {
 						draw_sprite(h_knife_sp, knife.position, 0.0f);
 						if(interact && !P1.carrying) {
+							interact = false;
 							P1.carrying = true;
 							P1.in_hand = KNIFE;
 							knife.show = false;
@@ -899,41 +1387,84 @@ int main(int argc, char **argv) {
 				if(rock.can_interact && rock.touches(P1)) {
 					draw_sprite(h_rock_sp, rock.position, 0.0f);
 					if(interact && !P1.carrying) {
+						interact = false;
 						P1.carrying = true;
 						P1.in_hand = ROCK;
-						rock.show = true;
+						rock.show = false;
 						rock.can_interact = false;
 						rock.carried = true;
+						rock.used = true;
+						scale_sp = load_sprite("scaleTilted");
+						h_scale_sp = load_sprite("h_scaleTilted");
 					}
 				}
-				if(rock.show) {
-					draw_sprite(rock_sp, rock.position, 0.0f);
-				}
-			}
-			for (auto &movable : movables) {
-				if(movable.carried==true) {
-					movable.position = P1.position;
+				if(coin.show && !coin.used) {
+					draw_sprite(coin_sp, coin.position, 0.0f);
+					if(coin.can_interact && coin.touches(P1)) {
+						draw_sprite(h_coin_sp, coin.position, 0.0f);
+						if(interact && !P1.carrying) {
+							interact = false;
+							P1.carrying = true;
+							P1.in_hand = COIN;
+							coin.show = false;
+							coin.can_interact = false;
+							coin.carried = true;
+							coin.used = true;
+						}
+					}
 				}
 			}
 			
 			//determine the sprite of the player
-			if(P1.carrying==NONE) {
-				if(P1.walk_leg) {
-					player_sp = load_sprite("player1");
+			if(!escaped) {
+				if(P1.carrying==NONE) {
+					if(P1.walk_leg) {
+						player_sp = load_sprite("player1");
+					}
+					else {
+						player_sp = load_sprite("player2");
+					}
+				} else {
+					if(P1.walk_leg) {
+						player_sp = load_sprite("playerCarry1");
+					}
+					else {
+						player_sp = load_sprite("playerCarry2");
+					}
 				}
-				else {
-					player_sp = load_sprite("player2");
+				draw_sprite(player_sp, P1.position, 0.0f);
+			}
+			
+			switch(show_message) {
+				case WORK_BENCH: {
+					draw_sprite(message_sp, glm::vec2(-6.0f, -7.0f), 0.0f);
+					break;
 				}
-			} else {
-				if(P1.walk_leg) {
-					player_sp = load_sprite("playerCarry1");
+				case GATE: {
+					draw_sprite(message_sp, glm::vec2(-6.0f, -7.0f), 0.0f);
+					break;
 				}
-				else {
-					player_sp = load_sprite("playerCarry2");
+				case TREE: {
+					draw_sprite(message_sp, glm::vec2(-6.0f, -7.0f), 0.0f);
+					break;
+				}
+				case POND: {
+					draw_sprite(message_sp, glm::vec2(-6.0f, -7.0f), 0.0f);
+					break;
+				}
+				case MAP: {
+					draw_sprite(message_sp, glm::vec2(-6.0f, -7.0f), 0.0f);
+					break;
+				}
+				case SCALE: {
+					draw_sprite(message_sp, glm::vec2(-6.0f, -7.0f), 0.0f);
+					break;
 				}
 			}
-			draw_sprite(player_sp, P1.position, 0.0f);
 
+			if(escaped) {
+				draw_sprite(escaped_sp, glm::vec2(0.0f, 0.0f), 0.0f);
+			}
 //==================================================================================================================
 			glBindBuffer(GL_ARRAY_BUFFER, buffer);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * verts.size(), &verts[0], GL_STREAM_DRAW);
