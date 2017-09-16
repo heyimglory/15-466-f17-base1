@@ -193,7 +193,7 @@ int main(int argc, char **argv) {
 		glm::vec2 rad = glm::vec2(13.3f, 9.975f);
 	};
 
-#define SPRITE_NUM 79
+#define SPRITE_NUM 80
 #define TEXTURE_MAP_SIZE_X 481
 #define TEXTURE_MAP_SIZE_Y 199
 	//read the sprite data from file
@@ -240,6 +240,7 @@ int main(int argc, char **argv) {
 				return sprite_list[i];
 			}
 		}
+		printf("cannot find sprite %s", name.c_str());
 		exit(1);
 		return info;
 	};
@@ -308,6 +309,8 @@ int main(int argc, char **argv) {
 		bool carrying = false;
 		int in_hand = NONE;
 		int direction = RIGHT;
+		bool walking = false;
+		bool walk_leg = true;
 	};
 
 	class movable {
@@ -325,6 +328,13 @@ int main(int argc, char **argv) {
 			show = sh;
 			can_interact = interact;
 		}
+		bool touches(player p) {
+			if(std::abs(p.position.x-position.x)<=rad.x && std::abs(p.position.y-position.y)<=rad.y) {
+				return true;
+			} else {
+				return false;
+			}
+		}
 	};
 	
 	class landmark {
@@ -337,6 +347,13 @@ int main(int argc, char **argv) {
 		landmark(float x, float y, float r_x, float r_y) {
 			position = glm::vec2(x, y);
 			rad = glm::vec2(r_x, r_y);
+		}
+		bool touches(player p) {
+			if(std::abs(p.position.x-position.x)<=rad.x && std::abs(p.position.y-position.y)<=rad.y) {
+				return true;
+			} else {
+				return false;
+			}
 		}
 	};
 	
@@ -365,20 +382,20 @@ int main(int argc, char **argv) {
 	player P1;
 	//--movables--
 	std::vector< movable > movables;
-	movable board(-8.0f, 4.6f, 0.5f, 0.5f, true, true);
-	movable rope(-5.0f, 0.0f, 0.5f, 0.5f, true, true);
-	movable pick_axe_head(7.0f, 3.2f, 0.5f, 0.5f, true, true);
-	movable stick(9.0f, -3.0f, 0.5f, 0.5f, true, true);
-	movable rod(9.0f, -2.0f, 0.5f, 0.5f, true, true);
-	movable knife(-3.0f, -5.0f, 0.5f, 0.5f, true, true);
-	movable bridge(3.0f, -4.5f, 0.5f, 0.5f, false, false);
-	movable pick_axe(3.0f, -4.5f, 0.5f, 0.5f, false, false);
-	movable long_knife(3.0f, -4.5f, 0.5f, 0.5f, false, false);
-	movable crystal(5.0f, 1.5f, 0.5f, 0.5f, true, false);
-	movable coin(6.0f, -4.0f, 0.5f, 0.5f, false, false);
-	movable apple(4.0f, 8.4f, 0.5f, 0.5f, true, false);
-	movable rock(-4.0f, 5.0f, 0.5f, 0.5f, false, true);
-	movable key(0.0f, 2.0f, 0.5f, 0.5f, false, false);	
+	movable board(-8.0f, 4.0f, 2.0f, 2.0f, true, true);
+	movable rope(-5.0f, -2.0f, 2.0f, 2.0f, true, true);
+	movable pick_axe_head(7.0f, -3.2f, 2.0f, 2.0f, true, true);
+	movable stick(9.0f, -3.0f, 2.0f, 2.0f, true, true);
+	movable rod(9.0f, -2.0f, 2.0f, 2.0f, true, true);
+	movable knife(-3.0f, -5.0f, 2.0f, 2.0f, true, true);
+	movable bridge(4.0f, -5.0f, 2.0f, 2.0f, false, false);
+	movable pick_axe(4.0f, -5.0f, 2.0f, 2.0f, false, false);
+	movable long_knife(4.0f, -5.0f, 2.0f, 2.0f, false, false);
+	movable crystal(-4.6f, 2.3f, 2.0f, 2.0f, true, false);
+	movable coin(6.0f, -4.0f, 2.0f, 2.0f, false, false);
+	movable apple(5.7f, 8.3f, 2.0f, 2.0f, true, false);
+	movable rock(-4.0f, 5.0f, 2.0f, 2.0f, false, true);
+	movable key(0.0f, 2.0f, 2.0f, 2.0f, false, false);	
 	movables.push_back(board);
 	movables.push_back(rope);
 	movables.push_back(pick_axe_head);
@@ -396,19 +413,19 @@ int main(int argc, char **argv) {
 	
 	//--landmarks--
 	std::vector< landmark > landmarks;
-	landmark gate(0.0, 5.4f, 2.0f, 0.3f);
-	landmark work_bench(8.0f, 6.2f, 2.0f, 1.0f);
-	landmark pillar_right(4.0f, 1.0f, 0.5f, 0.5f);
-	landmark pillar_up(0.0f, 3.0f, 0.5f, 0.5f);
-	landmark pillar_left(-4.0f, 1.0f, 0.5f, 0.5f);
-	landmark pillar_down(0.0f, -3.0f, 0.5f, 0.5f);
-	landmark pillar_center(0.0f, 1.0f, 0.5f, 0.5f);
+	landmark gate(0.07f, 7.33f, 2.0f, 2.0f);
+	landmark work_bench(9.25f, -8.8f, 4.0f, 2.5f);
+	landmark pillar_right(4.0f, 1.0f, 2.0f, 2.0f);
+	landmark pillar_up(0.0f, 3.0f, 2.0f, 2.0f);
+	landmark pillar_left(-4.0f, 1.0f, 2.0f, 2.0f);
+	landmark pillar_down(0.0f, -3.0f, 2.0f, 2.0f);
+	landmark pillar_center(0.0f, 1.0f, 2.0f, 2.0f);
 	landmark tree(8.0f, 3.6f, 2.0f, 1.8f);
 	landmark pond(6.0f, 1.5f, 2.0f, 1.5f);
-	landmark bridge_place(4.0f, 1.5f, 0.5f, 0.5f);
-	landmark scale(-7.0f, 5.0f, 1.5f, 1.0f);
+	landmark bridge_place(4.0f, 1.5f, 2.0f, 2.0f);
+	landmark scale(-7.0f, 5.0f, 1.5f, 2.0f);
 	landmark map(6.0f, 5.4f, 3.0f, 0.3f);
-	landmark hole(6.0f, -4.0f, 1.0f, 1.0f);
+	landmark hole(6.0f, -4.0f, 2.0f, 2.0f);
 	landmarks.push_back(gate);
 	landmarks.push_back(work_bench);
 	landmarks.push_back(pillar_right);
@@ -424,7 +441,7 @@ int main(int argc, char **argv) {
 	landmarks.push_back(hole);
 	
 	//--highlights--
-	std::vector< highlight > highlights;
+	/*std::vector< highlight > highlights;
 	highlight h_board(board.position, board.touched);
 	highlight h_rope(rope.position, rope.touched);
 	highlight h_pick_axe_head(pick_axe_head.position, pick_axe_head.touched);
@@ -478,20 +495,20 @@ int main(int argc, char **argv) {
 	highlights.push_back(h_bridgePlace);
 	highlights.push_back(h_scale);
 	highlights.push_back(h_map);
-	highlights.push_back(h_hole);
+	highlights.push_back(h_hole);*/
 	
 	//--- sprites ---
 	static SpriteInfo background = load_sprite("center");
 	static SpriteInfo player_sp = load_sprite("player1");
 	static SpriteInfo board_sp = load_sprite("board");
 	static SpriteInfo rope_sp = load_sprite("rope");
-	static SpriteInfo pick_axe_head_sp = load_sprite("pick_axe_head");
+	static SpriteInfo pick_axe_head_sp = load_sprite("pickAxeHead");
 	static SpriteInfo stick_sp = load_sprite("stick");
 	static SpriteInfo rod_sp = load_sprite("rod");
 	static SpriteInfo knife_sp = load_sprite("knife");
 	static SpriteInfo bridge_sp = load_sprite("bridge");
-	static SpriteInfo pick_axe_sp = load_sprite("pick_axe");
-	static SpriteInfo long_knife_sp = load_sprite("long_knife");
+	static SpriteInfo pick_axe_sp = load_sprite("pickAxe");
+	static SpriteInfo long_knife_sp = load_sprite("longKnife");
 	static SpriteInfo crystal_sp = load_sprite("crystal");
 	static SpriteInfo coin_sp = load_sprite("coin");
 	static SpriteInfo apple_sp = load_sprite("apple");
@@ -503,13 +520,13 @@ int main(int argc, char **argv) {
 	static SpriteInfo message_sp = load_sprite("message");
 	static SpriteInfo h_board_sp = load_sprite("h_board");
 	static SpriteInfo h_rope_sp = load_sprite("h_rope");
-	static SpriteInfo h_pick_axe_head_sp = load_sprite("h_pick_axe_head");
+	static SpriteInfo h_pick_axe_head_sp = load_sprite("h_pickAxeHead");
 	static SpriteInfo h_stick_sp = load_sprite("h_stick");
 	static SpriteInfo h_rod_sp = load_sprite("h_rod");
 	static SpriteInfo h_knife_sp = load_sprite("h_knife");
 	static SpriteInfo h_bridge_sp = load_sprite("h_bridge");
-	static SpriteInfo h_pick_axe_sp = load_sprite("h_pick_axe");
-	static SpriteInfo h_long_knife_sp = load_sprite("h_long_knife");
+	static SpriteInfo h_pick_axe_sp = load_sprite("h_pickAxe");
+	static SpriteInfo h_long_knife_sp = load_sprite("h_longKnife");
 	static SpriteInfo h_crystal_sp = load_sprite("h_crystal");
 	static SpriteInfo h_coin_sp = load_sprite("h_coin");
 	static SpriteInfo h_apple_sp = load_sprite("h_apple");
@@ -521,9 +538,10 @@ int main(int argc, char **argv) {
 	static SpriteInfo h_bridgePlace_sp = load_sprite("h_bridgePlace");
 	static SpriteInfo h_work_bench_sp = load_sprite("h_workBench");	
 	
+	//==================================================================================================================
+	
 	while (true) {
 		static SDL_Event evt;
-		interact = false;
 		while (SDL_PollEvent(&evt) == 1) {
 			//handle input:
 			if (evt.type == SDL_MOUSEMOTION) {
@@ -535,44 +553,54 @@ int main(int argc, char **argv) {
 			} else if (evt.type == SDL_QUIT) {
 				should_quit = true;
 				break;
-			} else if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_RIGHT) {
-				P1.direction = RIGHT;
-				if(P1.position.x<12.6f && (current_map==BACKGROUND_CENTER || current_map==BACKGROUND_LEFT)) {
-					P1.position.x += 0.2f;
-				} else if (P1.position.x<11.2f && current_map==BACKGROUND_RIGHT) {
-					P1.position.x += 0.2f;
+			} else {
+				if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_RIGHT) {
+					P1.direction = RIGHT;
+					P1.walking = true;
+					P1.walk_leg = !P1.walk_leg;
+					if(P1.position.x<12.6f && (current_map==BACKGROUND_CENTER || current_map==BACKGROUND_LEFT)) {
+						P1.position.x += 0.3f;
+					} else if (P1.position.x<11.2f && current_map==BACKGROUND_RIGHT) {
+						P1.position.x += 0.3f;
+					}
+					interact = false;
 				}
-			} else if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_UP) {
-				P1.direction = UP;
-				if(P1.position.y<5.4f) {
-					P1.position.y += 0.2f;
+				if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_UP) {
+					P1.direction = UP;
+					P1.walking = true;
+					P1.walk_leg = !P1.walk_leg;
+					if(P1.position.y<5.4f) {
+						P1.position.y += 0.3f;
+					}
+					interact = false;
 				}
-			} else if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_LEFT) {
-				P1.direction = LEFT;
-				if(P1.position.x>-12.6f && (current_map==BACKGROUND_CENTER || current_map==BACKGROUND_RIGHT)) {
-					P1.position.x -= 0.2f;
-				} else if (P1.position.x>-11.2f && current_map==BACKGROUND_LEFT) {
-					P1.position.x -= 0.2f;
+				if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_LEFT) {
+					P1.direction = LEFT;
+					P1.walking = true;
+					P1.walk_leg = !P1.walk_leg;
+					if(P1.position.x>-12.6f && (current_map==BACKGROUND_CENTER || current_map==BACKGROUND_RIGHT)) {
+						P1.position.x -= 0.3f;
+					} else if (P1.position.x>-11.2f && current_map==BACKGROUND_LEFT) {
+						P1.position.x -= 0.3f;
+					}
+					interact = false;
 				}
-			} else if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_DOWN) {
-				P1.direction = DOWN;
-				if(P1.position.y>-8.6f) {
-					P1.position.y -= 0.2f;
+				if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_DOWN) {
+					P1.direction = DOWN;
+					P1.walking = true;
+					P1.walk_leg = !P1.walk_leg;
+					if(P1.position.y>-8.6f) {
+						P1.position.y -= 0.3f;
+					}
+					interact = false;
 				}
-			} else if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_z) {
-				interact = true;
+				if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_z) {
+					interact = true;
+				}
 			}
 		}
 		if (should_quit) break;
 		
-		
-		
-		
-		
-		
-		
-		
-
 		auto current_time = std::chrono::high_resolution_clock::now();
 		static auto previous_time = current_time;
 		float elapsed = std::chrono::duration< float >(current_time - previous_time).count();
@@ -620,7 +648,7 @@ int main(int argc, char **argv) {
 			
 			
 			
-			
+			// background behavior in each map
 			if(current_map == BACKGROUND_CENTER) {
 				background = load_sprite("center");
 				if(P1.position.x>=12.2f && P1.direction==RIGHT) {
@@ -629,26 +657,284 @@ int main(int argc, char **argv) {
 				} else if(P1.position.x<=-12.2f && P1.direction==LEFT) {
 					current_map = BACKGROUND_LEFT;
 					P1.position.x = 12.2f;
-				}				
+				}								
 			} else if (current_map == BACKGROUND_LEFT) {
 				background = load_sprite("left");
 				if(P1.position.x>=12.2f && P1.direction==RIGHT) {
 					current_map = BACKGROUND_CENTER;
 					P1.position.x = -12.2f;
-				}	
+				}		
 			} else if (current_map == BACKGROUND_RIGHT) {
 				background = load_sprite("right");
 				if(P1.position.x<=-12.2f && P1.direction==LEFT) {
 					current_map = BACKGROUND_CENTER;
 					P1.position.x = 12.2f;
-				}	
+				}		
 			}
 			rect(glm::vec2(0.0f, 0.0f), glm::vec2(camera.radius.x, camera.radius.y), background.min_uv, background.max_uv, glm::u8vec4(0xff, 0xff, 0xff, 0xff));
+			
+			// landmark behavior in each map
+			if(current_map == BACKGROUND_CENTER) {
+				if(work_bench.touches(P1)) {
+					draw_sprite(h_work_bench_sp, work_bench.position, 0.0f);
+					if(interact) {
+						if(P1.carrying) {
+							if(P1.in_hand==BOARD) {
+								board.carried = false;
+								board.used = true;
+								if(rope.used) {
+									bridge.show = true;
+									bridge.can_interact = true;
+									bridge_place.can_interact = true;
+								}
+							} else if(P1.in_hand==ROPE) {
+								rope.carried = false;
+								rope.used = true;
+								if(board.used) {
+									bridge.show = true;
+									bridge.can_interact = true;
+									bridge_place.can_interact = true;
+								}
+							} else if(P1.in_hand==PICK_AXE_HEAD) {
+								pick_axe_head.carried = false;
+								pick_axe_head.used = true;
+								if(stick.used) {
+									pick_axe.show = true;
+									pick_axe.can_interact = true;
+									hole.can_interact = true;
+								}
+							} else if(P1.in_hand==STICK) {
+								stick.carried = false;
+								stick.used = true;
+								if(pick_axe_head.used) {
+									pick_axe.show = true;
+									pick_axe.can_interact = true;
+									hole.can_interact = true;
+								}
+							} else if(P1.in_hand==ROD) {
+								rod.carried = false;
+								rod.used = true;
+								if(knife.used) {
+									long_knife.show = true;
+									long_knife.can_interact = true;
+									apple.can_interact = true;
+								}
+							} else if(P1.in_hand==KNIFE) {
+								knife.carried = false;
+								knife.used = true;
+								if(rod.used) {
+									long_knife.show = true;
+									long_knife.can_interact = true;
+									apple.can_interact = true;
+								}
+							}
+							P1.carrying = false;
+							P1.in_hand = NONE;
+						} else {
+							// show message
+						}
+					}
+				}
+				if(gate.show) {
+					draw_sprite(gate_sp, gate.position, 0.0f);
+					if(gate.can_interact && gate.touches(P1)) {
+						draw_sprite(h_gate_sp, gate.position, 0.0f);
+						// show message
+					}
+				}
+			} else if (current_map == BACKGROUND_LEFT) {
+					
+			} else if (current_map == BACKGROUND_RIGHT) {
+					
+			}
+			
+			//movable behavior in each map
+			if (current_map == BACKGROUND_CENTER) {
+				if(board.show) {
+					draw_sprite(board_sp, board.position, 0.0f);
+					if(board.can_interact && board.touches(P1)) {
+						draw_sprite(h_board_sp, board.position, 0.0f);
+						if(interact && !P1.carrying) {
+							P1.carrying = true;
+							P1.in_hand = BOARD;
+							board.show = false;
+							board.can_interact = false;
+							board.carried = true;
+						}
+					}
+				}
+				if(pick_axe_head.show) {
+					draw_sprite(pick_axe_head_sp, pick_axe_head.position, 0.0f);
+					if(pick_axe_head.can_interact && pick_axe_head.touches(P1)) {
+						draw_sprite(h_pick_axe_head_sp, pick_axe_head.position, 0.0f);
+						if(interact && !P1.carrying) {
+							P1.carrying = true;
+							P1.in_hand = PICK_AXE_HEAD;
+							pick_axe_head.show = false;
+							pick_axe_head.can_interact = false;
+							pick_axe_head.carried = true;
+						}
+					}
+				}
+				if(bridge.show) {
+					draw_sprite(bridge_sp, bridge.position, 0.0f);
+					if(bridge.can_interact && bridge.touches(P1)) {
+						draw_sprite(h_bridge_sp, bridge.position, 0.0f);
+						if(interact && !P1.carrying) {
+							P1.carrying = true;
+							P1.in_hand = BRIDGE;
+							bridge.show = false;
+							bridge.can_interact = false;
+							bridge.carried = true;
+						}
+					}
+				}
+				if(pick_axe.show) {
+					draw_sprite(pick_axe_sp, pick_axe.position, 0.0f);
+					if(pick_axe.can_interact && pick_axe.touches(P1)) {
+						draw_sprite(h_pick_axe_sp, pick_axe.position, 0.0f);
+						if(interact && !P1.carrying) {
+							P1.carrying = true;
+							P1.in_hand = PICK_AXE;
+							pick_axe.show = false;
+							pick_axe.can_interact = false;
+							pick_axe.carried = true;
+						}
+					}
+				}
+				if(long_knife.show) {
+					draw_sprite(long_knife_sp, long_knife.position, 0.0f);
+					if(long_knife.can_interact && long_knife.touches(P1)) {
+						draw_sprite(h_long_knife_sp, long_knife.position, 0.0f);
+						if(interact && !P1.carrying) {
+							P1.carrying = true;
+							P1.in_hand = LONG_KNIFE;
+							long_knife.show = false;
+							long_knife.can_interact = false;
+							long_knife.carried = true;
+						}
+					}
+				}
+			} else if (current_map == BACKGROUND_LEFT) {
+				if(stick.show) {
+					draw_sprite(stick_sp, stick.position, 0.0f);
+					if(stick.can_interact && stick.touches(P1)) {
+						draw_sprite(h_stick_sp, stick.position, 0.0f);
+						if(interact && !P1.carrying) {
+							P1.carrying = true;
+							P1.in_hand = STICK;
+							stick.show = false;
+							stick.can_interact = false;
+							stick.carried = true;
+						}
+					}
+				}
+				if(rope.show) {
+					draw_sprite(rope_sp, rope.position, 0.0f);
+					if(rope.can_interact && rope.touches(P1)) {
+						draw_sprite(h_rope_sp, rope.position, 0.0f);
+						if(interact && !P1.carrying) {
+							P1.carrying = true;
+							P1.in_hand = ROPE;
+							rope.show = false;
+							rope.can_interact = false;
+							rope.carried = true;
+						}
+					}
+				}
+				if(crystal.show) {
+					draw_sprite(crystal_sp, crystal.position, 0.0f);
+					if(crystal.can_interact && crystal.touches(P1)) {
+						draw_sprite(h_crystal_sp, crystal.position, 0.0f);
+						if(interact && !P1.carrying) {
+							P1.carrying = true;
+							P1.in_hand = CRYSTAL;
+							crystal.show = false;
+							crystal.can_interact = false;
+							crystal.carried = true;
+						}
+					}
+				}
+				if(apple.show) {
+					draw_sprite(apple_sp, apple.position, 0.0f);
+					if(apple.can_interact && apple.touches(P1)) {
+						draw_sprite(h_apple_sp, apple.position, 0.0f);
+						if(interact && !P1.carrying) {
+							P1.carrying = true;
+							P1.in_hand = APPLE;
+							apple.show = false;
+							apple.can_interact = false;
+							apple.carried = true;
+						}
+					}
+				}
+				
+			} else if (current_map == BACKGROUND_RIGHT) {
+				if(rod.show) {
+					draw_sprite(rod_sp, rod.position, 0.0f);
+					if(rod.can_interact && rod.touches(P1)) {
+						draw_sprite(h_rod_sp, rod.position, 0.0f);
+						if(interact && !P1.carrying) {
+							P1.carrying = true;
+							P1.in_hand = ROD;
+							rod.show = false;
+							rod.can_interact = false;
+							rod.carried = true;
+						}
+					}
+				}
+				if(knife.show) {
+					draw_sprite(knife_sp, knife.position, 0.0f);
+					if(knife.can_interact && knife.touches(P1)) {
+						draw_sprite(h_knife_sp, knife.position, 0.0f);
+						if(interact && !P1.carrying) {
+							P1.carrying = true;
+							P1.in_hand = KNIFE;
+							knife.show = false;
+							knife.can_interact = false;
+							knife.carried = true;
+						}
+					}
+				}
+				if(rock.can_interact && rock.touches(P1)) {
+					draw_sprite(h_rock_sp, rock.position, 0.0f);
+					if(interact && !P1.carrying) {
+						P1.carrying = true;
+						P1.in_hand = ROCK;
+						rock.show = true;
+						rock.can_interact = false;
+						rock.carried = true;
+					}
+				}
+				if(rock.show) {
+					draw_sprite(rock_sp, rock.position, 0.0f);
+				}
+			}
+			for (auto &movable : movables) {
+				if(movable.carried==true) {
+					movable.position = P1.position;
+				}
+			}
+			
+			//determine the sprite of the player
+			if(P1.carrying==NONE) {
+				if(P1.walk_leg) {
+					player_sp = load_sprite("player1");
+				}
+				else {
+					player_sp = load_sprite("player2");
+				}
+			} else {
+				if(P1.walk_leg) {
+					player_sp = load_sprite("playerCarry1");
+				}
+				else {
+					player_sp = load_sprite("playerCarry2");
+				}
+			}
 			draw_sprite(player_sp, P1.position, 0.0f);
 
-			
-
-
+//==================================================================================================================
 			glBindBuffer(GL_ARRAY_BUFFER, buffer);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * verts.size(), &verts[0], GL_STREAM_DRAW);
 
