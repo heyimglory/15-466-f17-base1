@@ -8,6 +8,9 @@
 #include <chrono>
 #include <iostream>
 #include <stdexcept>
+#include <fstream>
+
+#define SPRITE_NUM 79
 
 static GLuint compile_shader(GLenum type, std::string const &source);
 static GLuint link_program(GLuint vertex_shader, GLuint fragment_shader);
@@ -15,8 +18,8 @@ static GLuint link_program(GLuint vertex_shader, GLuint fragment_shader);
 int main(int argc, char **argv) {
 	//Configuration:
 	struct {
-		std::string title = "Game1: Text/Tiles";
-		glm::uvec2 size = glm::uvec2(640, 480);
+		std::string title = "Game1: Make and Escape";
+		glm::uvec2 size = glm::uvec2(800, 600);
 	} config;
 
 	//------------  initialization ------------
@@ -87,7 +90,7 @@ int main(int argc, char **argv) {
 
 	{ //load texture 'tex':
 		std::vector< uint32_t > data;
-		if (!load_png("elements.png", &tex_size.x, &tex_size.y, &data, LowerLeftOrigin)) {
+		if (!load_png("map.png", &tex_size.x, &tex_size.y, &data, LowerLeftOrigin)) {
 			std::cerr << "Failed to load texture." << std::endl;
 			exit(1);
 		}
@@ -186,15 +189,47 @@ int main(int argc, char **argv) {
 
 	//------------ sprite info ------------
 	struct SpriteInfo {
-		glm::vec2 min_uv = glm::vec2(0.0f);
-		glm::vec2 max_uv = glm::vec2(1.0f);
-		glm::vec2 rad = glm::vec2(0.5f);
+		char name[20];
+		glm::vec2 min_uv = glm::vec2(4.0f / 500.0f, 115.0f / 240.f);
+		glm::vec2 max_uv = glm::vec2(163.0f / 500.0f, 234.0f / 240.0f);
+		glm::vec2 rad = glm::vec2(13.3f, 9.975f);
 	};
 
+	//read the sprite data from file
+	SpriteInfo sprite_list[SPRITE_NUM];
+	{
+		std::ifstream fin ("spriteBin.bin", std::ifstream::binary);
+		for(int i=0;i<SPRITE_NUM;i++) {;
+			fin.read(reinterpret_cast<char*>(&sprite_list[i].name), sizeof(char) * 20);
+			//reference to https://stackoverflow.com/questions/19614581/reading-floating-numbers-from-bin-file-continuosly-and-outputting-in-console-win
+			fin.read(reinterpret_cast<char*>(&(sprite_list[i].min_uv.x)), sizeof(float));
+			fin.read(reinterpret_cast<char*>(&(sprite_list[i].min_uv.y)), sizeof(float));
+			fin.read(reinterpret_cast<char*>(&(sprite_list[i].max_uv.x)), sizeof(float));
+			fin.read(reinterpret_cast<char*>(&(sprite_list[i].max_uv.y)), sizeof(float));
+			sprite_list[i].rad.x = (sprite_list[i].max_uv.x - sprite_list[i].min_uv.x) / 2;
+			sprite_list[i].rad.y = (sprite_list[i].max_uv.y - sprite_list[i].min_uv.y) / 2;
+			//printf("%s %f %f %f %f\n", sprite_list[i].name.c_str(), sprite_list[i].min_uv.x, sprite_list[i].min_uv.y, sprite_list[i].max_uv.x, sprite_list[i].max_uv.y);
+		}
+		fin.close();
+	}
 
-	auto load_sprite = [](std::string const &name) -> SpriteInfo {
+	auto load_sprite = [&](std::string const &name) -> SpriteInfo {
 		SpriteInfo info;
 		//TODO: look up sprite name in table of sprite infos
+		int i;
+		char n[20];
+		for(i=0;i<(int)name.length();i++) {
+			n[i] = name[i];
+		}
+		for(i=(int)name.length();i<20;i++) {
+			n[i] = '\0';
+		}
+		for(i=0; i<SPRITE_NUM;i++) {
+			if(strncmp(sprite_list[i].name, n, 20)==0) {
+				return sprite_list[i];
+			}
+		}
+		exit(1);
 		return info;
 	};
 
@@ -226,6 +261,16 @@ int main(int argc, char **argv) {
 			} else if (evt.type == SDL_QUIT) {
 				should_quit = true;
 				break;
+			} else if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_RIGHT) {
+				
+			} else if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_UP) {
+				
+			} else if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_LEFT) {
+				
+			} else if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_DOWN) {
+				
+			} else if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_z) {
+				
 			}
 		}
 		if (should_quit) break;
@@ -240,7 +285,7 @@ int main(int argc, char **argv) {
 		}
 
 		//draw output:
-		glClearColor(0.5, 0.5, 0.5, 0.0);
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -250,12 +295,12 @@ int main(int argc, char **argv) {
 			std::vector< Vertex > verts;
 
 			//helper: add rectangle to verts:
-			auto rect = [&verts](glm::vec2 const &at, glm::vec2 const &rad, glm::u8vec4 const &tint) {
-				verts.emplace_back(at + glm::vec2(-rad.x,-rad.y), glm::vec2(0.0f, 0.0f), tint);
+			auto rect = [&verts](glm::vec2 const &at, glm::vec2 const &rad, glm::vec2 const &uv_min, glm::vec2 const &uv_max, glm::u8vec4 const &tint) {
+				verts.emplace_back(at + glm::vec2(-rad.x,-rad.y), glm::vec2(uv_min.x, uv_min.y), tint);
 				verts.emplace_back(verts.back());
-				verts.emplace_back(at + glm::vec2(-rad.x, rad.y), glm::vec2(0.0f, 1.0f), tint);
-				verts.emplace_back(at + glm::vec2( rad.x,-rad.y), glm::vec2(1.0f, 0.0f), tint);
-				verts.emplace_back(at + glm::vec2( rad.x, rad.y), glm::vec2(1.0f, 1.0f), tint);
+				verts.emplace_back(at + glm::vec2(-rad.x, rad.y), glm::vec2(uv_min.x, uv_max.y), tint);
+				verts.emplace_back(at + glm::vec2( rad.x,-rad.y), glm::vec2(uv_max.x, uv_min.y), tint);
+				verts.emplace_back(at + glm::vec2( rad.x, rad.y), glm::vec2(uv_max.x, uv_max.y), tint);
 				verts.emplace_back(verts.back());
 			};
 
@@ -274,14 +319,16 @@ int main(int argc, char **argv) {
 				verts.emplace_back(at + right *  rad.x + up *  rad.y, glm::vec2(max_uv.x, max_uv.y), tint);
 				verts.emplace_back(verts.back());
 			};
-
-
+			static SpriteInfo center = load_sprite("crystal");
+			rect(glm::vec2(0.0f, 0.0f), glm::vec2(camera.radius.x, camera.radius.y), center.min_uv, center.max_uv, glm::u8vec4(0xff, 0xff, 0xff, 0xff));
+			//rect(mouse * camera.radius + camera.at, glm::vec2(5.0f, 2.4f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
+			
 			//Draw a sprite "player" at position (5.0, 2.0):
-			static SpriteInfo player = load_sprite("player"); //TODO: hoist
-			draw_sprite(player, glm::vec2(5.0, 2.0), 0.2f);
+			//static SpriteInfo player = load_sprite("crystal"); //TODO: hoist
+			//printf("%s %f %f %f %f\n", player.name, player.min_uv.x, player.min_uv.y, player.max_uv.x, player.max_uv.y);
+			//draw_sprite(player, glm::vec2(0.0, 0.0), 0.0f);
 
-			rect(glm::vec2(0.0f, 0.0f), glm::vec2(4.0f), glm::u8vec4(0xff, 0x00, 0x00, 0xff));
-			rect(mouse * camera.radius + camera.at, glm::vec2(4.0f), glm::u8vec4(0xff, 0xff, 0xff, 0x88));
+			
 
 
 			glBindBuffer(GL_ARRAY_BUFFER, buffer);
