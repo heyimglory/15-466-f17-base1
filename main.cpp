@@ -1081,7 +1081,7 @@ int main(int argc, char **argv) {
 						interact = false;
 						P1.carrying = false;
 						P1.in_hand = NONE;
-						bridge_place.can = false;
+						bridge_place.can_interact = false;
 						bridge.used = true;
 						bridge.position = bridge_place.position;
 						bridge.show = true;
@@ -1435,29 +1435,138 @@ int main(int argc, char **argv) {
 				draw_sprite(player_sp, P1.position, 0.0f);
 			}
 			
+			
+			static SpriteInfo A = load_sprite("A");
+			static SpriteInfo C = load_sprite("C");
+			static SpriteInfo D = load_sprite("D");
+			static SpriteInfo E = load_sprite("E");
+			static SpriteInfo F = load_sprite("F");
+			static SpriteInfo G = load_sprite("G");
+			static SpriteInfo H = load_sprite("H");
+			static SpriteInfo I = load_sprite("I");
+			static SpriteInfo K = load_sprite("K");
+			static SpriteInfo L = load_sprite("L");
+			static SpriteInfo M = load_sprite("M");
+			static SpriteInfo N = load_sprite("N");
+			static SpriteInfo O = load_sprite("O");
+			static SpriteInfo P = load_sprite("P");
+			static SpriteInfo R = load_sprite("R");
+			static SpriteInfo S = load_sprite("S");
+			static SpriteInfo T = load_sprite("T");
+			static SpriteInfo U = load_sprite("U");
+			static SpriteInfo W = load_sprite("W");
+			static SpriteInfo Y = load_sprite("Y");
+			static SpriteInfo excl = load_sprite("exclamMark");
+			static SpriteInfo period = load_sprite("period");
+			
 			switch(show_message) {
 				case WORK_BENCH: {
+					// MAKE STUFF HERE!
 					draw_sprite(message_sp, glm::vec2(-6.0f, -7.0f), 0.0f);
+					draw_sprite(M, glm::vec2(-11.0f, -6.5f), 0.0f);
+					draw_sprite(A, glm::vec2(-10.0f, -6.5f), 0.0f);
+					draw_sprite(K, glm::vec2(-9.0f, -6.5f), 0.0f);
+					draw_sprite(E, glm::vec2(-8.0f, -6.5f), 0.0f);
+					draw_sprite(S, glm::vec2(-6.5f, -6.5f), 0.0f);
+					draw_sprite(T, glm::vec2(-5.5f, -6.5f), 0.0f);
+					draw_sprite(U, glm::vec2(-4.5f, -6.5f), 0.0f);
+					draw_sprite(F, glm::vec2(-3.5f, -6.5f), 0.0f);
+					draw_sprite(F, glm::vec2(-2.5f, -6.5f), 0.0f);
+					draw_sprite(H, glm::vec2(-11.0f, -7.5f), 0.0f);
+					draw_sprite(E, glm::vec2(-10.0f, -7.5f), 0.0f);
+					draw_sprite(R, glm::vec2(-9.0f, -7.5f), 0.0f);
+					draw_sprite(E, glm::vec2(-8.0f, -7.5f), 0.0f);
+					draw_sprite(excl, glm::vec2(-7.0f, -7.5f), 0.0f);
 					break;
 				}
 				case GATE: {
+					// GATE LOCKED!
 					draw_sprite(message_sp, glm::vec2(-6.0f, -7.0f), 0.0f);
+					draw_sprite(G, glm::vec2(-11.0f, -6.5f), 0.0f);
+					draw_sprite(A, glm::vec2(-10.0f, -6.5f), 0.0f);
+					draw_sprite(T, glm::vec2(-9.0f, -6.5f), 0.0f);
+					draw_sprite(E, glm::vec2(-8.0f, -6.5f), 0.0f);
+					draw_sprite(L, glm::vec2(-6.5f, -6.5f), 0.0f);
+					draw_sprite(O, glm::vec2(-5.5f, -6.5f), 0.0f);
+					draw_sprite(C, glm::vec2(-4.5f, -6.5f), 0.0f);
+					draw_sprite(K, glm::vec2(-3.5f, -6.5f), 0.0f);
+					draw_sprite(E, glm::vec2(-2.5f, -6.5f), 0.0f);
+					draw_sprite(D, glm::vec2(-1.5f, -6.5f), 0.0f);
+					draw_sprite(excl, glm::vec2(-0.5f, -6.5f), 0.0f);
 					break;
 				}
 				case TREE: {
+					// LOOK UP!
 					draw_sprite(message_sp, glm::vec2(-6.0f, -7.0f), 0.0f);
+					draw_sprite(L, glm::vec2(-11.0f, -6.5f), 0.0f);
+					draw_sprite(O, glm::vec2(-10.0f, -6.5f), 0.0f);
+					draw_sprite(O, glm::vec2(-9.0f, -6.5f), 0.0f);
+					draw_sprite(K, glm::vec2(-8.0f, -6.5f), 0.0f);
+					draw_sprite(U, glm::vec2(-6.5f, -6.5f), 0.0f);
+					draw_sprite(P, glm::vec2(-5.5f, -6.5f), 0.0f);
+					draw_sprite(excl, glm::vec2(-4.5f, -6.5f), 0.0f);
 					break;
 				}
 				case POND: {
+					// I LEFT WITHOUT A TRACE.
 					draw_sprite(message_sp, glm::vec2(-6.0f, -7.0f), 0.0f);
+					draw_sprite(I, glm::vec2(-12.0f, -6.5f), 0.0f);
+					draw_sprite(L, glm::vec2(-10.5f, -6.5f), 0.0f);
+					draw_sprite(E, glm::vec2(-9.5f, -6.5f), 0.0f);
+					draw_sprite(F, glm::vec2(-8.5f, -6.5f), 0.0f);
+					draw_sprite(T, glm::vec2(-7.5f, -6.5f), 0.0f);
+					draw_sprite(W, glm::vec2(-6.0f, -6.5f), 0.0f);
+					draw_sprite(I, glm::vec2(-5.0f, -6.5f), 0.0f);
+					draw_sprite(T, glm::vec2(-4.0f, -6.5f), 0.0f);
+					draw_sprite(H, glm::vec2(-3.0f, -6.5f), 0.0f);
+					draw_sprite(O, glm::vec2(-2.0f, -6.5f), 0.0f);
+					draw_sprite(U, glm::vec2(-1.0f, -6.5f), 0.0f);
+					draw_sprite(T, glm::vec2(0.0f, -6.5f), 0.0f);
+					draw_sprite(A, glm::vec2(-12.0f, -7.5f), 0.0f);
+					draw_sprite(T, glm::vec2(-10.5f, -7.5f), 0.0f);
+					draw_sprite(R, glm::vec2(-9.5f, -7.5f), 0.0f);
+					draw_sprite(A, glm::vec2(-8.5f, -7.5f), 0.0f);
+					draw_sprite(C, glm::vec2(-7.5f, -7.5f), 0.0f);
+					draw_sprite(E, glm::vec2(-6.5f, -7.5f), 0.0f);
+					draw_sprite(period, glm::vec2(-5.5f, -8.0f), 0.0f);
 					break;
 				}
 				case MAP: {
+					// I AM ALWAYS RIGHT!
 					draw_sprite(message_sp, glm::vec2(-6.0f, -7.0f), 0.0f);
+					draw_sprite(I, glm::vec2(-11.0f, -6.5f), 0.0f);
+					draw_sprite(A, glm::vec2(-9.5f, -6.5f), 0.0f);
+					draw_sprite(M, glm::vec2(-8.5f, -6.5f), 0.0f);
+					draw_sprite(A, glm::vec2(-7.0f, -6.5f), 0.0f);
+					draw_sprite(L, glm::vec2(-6.0f, -6.5f), 0.0f);
+					draw_sprite(W, glm::vec2(-5.0f, -6.5f), 0.0f);
+					draw_sprite(A, glm::vec2(-4.0f, -6.5f), 0.0f);
+					draw_sprite(Y, glm::vec2(-3.0, -6.5f), 0.0f);
+					draw_sprite(S, glm::vec2(-2.0, -6.5f), 0.0f);
+					draw_sprite(R, glm::vec2(-11.0f, -7.5f), 0.0f);
+					draw_sprite(I, glm::vec2(-10.0f, -7.5f), 0.0f);
+					draw_sprite(G, glm::vec2(-9.0f, -7.5f), 0.0f);
+					draw_sprite(H, glm::vec2(-8.0f, -7.5f), 0.0f);
+					draw_sprite(T, glm::vec2(-7.0f, -7.5f), 0.0f);
+					draw_sprite(excl, glm::vec2(-6.0f, -7.5f), 0.0f);
 					break;
 				}
 				case SCALE: {
+					// SETTLE ME DOWN.
 					draw_sprite(message_sp, glm::vec2(-6.0f, -7.0f), 0.0f);
+					draw_sprite(S, glm::vec2(-11.0f, -6.5f), 0.0f);
+					draw_sprite(E, glm::vec2(-10.0f, -6.5f), 0.0f);
+					draw_sprite(T, glm::vec2(-9.0f, -6.5f), 0.0f);
+					draw_sprite(T, glm::vec2(-8.0f, -6.5f), 0.0f);
+					draw_sprite(L, glm::vec2(-7.0f, -6.5f), 0.0f);
+					draw_sprite(E, glm::vec2(-6.0f, -6.5f), 0.0f);
+					draw_sprite(M, glm::vec2(-4.5f, -6.5f), 0.0f);
+					draw_sprite(E, glm::vec2(-3.5f, -6.5f), 0.0f);
+					draw_sprite(D, glm::vec2(-11.0f, -7.5f), 0.0f);
+					draw_sprite(O, glm::vec2(-10.0f, -7.5f), 0.0f);
+					draw_sprite(W, glm::vec2(-9.0f, -7.5f), 0.0f);
+					draw_sprite(N, glm::vec2(-8.0f, -7.5f), 0.0f);
+					draw_sprite(period, glm::vec2(-7.0f, -8.0f), 0.0f);
 					break;
 				}
 			}
