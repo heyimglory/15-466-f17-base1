@@ -1,28 +1,20 @@
-NOTE: please fill in the first section with information about your game.
+# *Make and Escape*
 
-# *Game Title*
-
-*Game Title* is *Your Name*'s implementation of [*Design Document*](http://graphics.cs.cmu.edu/courses/15-466-f17/game1-designs/put-real-link-here) for game1 in 15-466-f17.
-
-*Include a Screenshot Here*
-
-## Build Notes
-
-*Include any special notes or steps required to build your game here. If there are no special notes, delete this section.*
+![alt text](https://github.com/heyimglory/15-466-f17-base1/blob/master/screenshots/center.png)
 
 ## Asset Pipeline
 
-*Briefly describe the asset pipeline for this game. What sorts of source files are used? How are they processed? How are they loaded?*
+The asset pipeline is pretty simple. It takes an altas and a txt file include the name of the texture and the coordinates. All the pipelie does is convert it into binary file and make sure the size if the information is correct. After the conversion, the main program can just take 20 characters as the name, and four float as the coordinate.
 
 ## Architecture
 
-*Provide a brief introduction to how you implemented the design. Talk about the basic structure of your code.*
+While running the game, it will determine which screen should display first. Then process the objects inside the screen. The objects have several status variable to determine whether they should show or interact with other objects. Most of them are divide into two types that share some traits when interacting with other objects.
 
 ## Reflection
 
-*Reflect on the assignment. What was difficult? What worked well? If you were doing it again, what would you change?*
+It took me a long time to understand how the texture loading process works and figure out how should a asset pipeline be like. I'm not really satisfy with my asset pipeline this time because it seems not doing much. Things were not that difficut after loading the texture successully, but still need a lot of tome to get them done.
 
-*Reflect on the design document. What was clear and what was ambiguous? How did you resolve the ambiguities?*
+I implement my own design this time, so I think the design document is pretty clear. But I'm not sure if that's just because I already thought about those things before.
 
 
 # About Base1
