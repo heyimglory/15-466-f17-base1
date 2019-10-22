@@ -2,6 +2,8 @@
 
 ![alt text](https://github.com/heyimglory/15-466-f17-base1/blob/master/screenshots/center.png)
 
+[Design Document](http://graphics.cs.cmu.edu/courses/15-466-f17/game1-designs/hungyuc/)
+
 ## Asset Pipeline
 
 The asset pipeline is pretty simple. It takes an altas and a txt file include the name of the texture and the coordinates. All the pipelie does is convert it into binary file and make sure the size if the information is correct. After the conversion, the main program can just take 20 characters as the name, and four float as the coordinate.
